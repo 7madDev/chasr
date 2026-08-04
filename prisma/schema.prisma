@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Goal {
+  id                 String     @id @default(cuid())
+  slug               String     @unique
+  ownerId            String
+
+  productName        String
+  productUrl         String?
+  founderName        String
+  founderLink        String?
+  why                String     @db.VarChar(280)
+
+  startAmount        Float
+  currentAmount      Float
+  targetAmount       Float
+  currency           String     @default("USD")
+  deadline           DateTime
+
+  status             GoalStatus @default(ACTIVE)
+  views              Int        @default(0)
+  lastUpdatedAt      DateTime   @default(now())
+  lastReminderSentAt DateTime?
+  createdAt          DateTime   @default(now())
+
+  updates            GoalUpdate[]
+  reactions          Reaction[]
+
+  @@index([status])
+  @@index([ownerId])
+}
+
+model GoalUpdate {
+  id        String   @id @default(cuid())
+  goalId    String
+  goal      Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  amount    Float
+  note      String?  @db.VarChar(140)
+  createdAt DateTime @default(now())
+
+  @@index([goalId])
+}
+
+model Reaction {
+  id          String   @id @default(cuid())
+  goalId      String
+  goal        Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  emoji       String   @default("🔥")
+  fingerprint String
+  createdAt   DateTime @default(now())
+
+  @@unique([goalId, fingerprint])
+}
+
+enum GoalStatus {
+  ACTIVE
+  HIT
+  ARCHIVED
+}
