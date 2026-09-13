@@ -9,11 +9,5 @@ export const metadata: Metadata = {
 export default async function NewGoalPage() {
   const user = await requireAuth();
 
-  const defaultFounderName =
-    user.user_metadata?.full_name ||
-    user.user_metadata?.name ||
-    user.email?.split("@")[0] ||
-    "";
-
-  return <NewGoalWizard defaultFounderName={defaultFounderName} />;
+  return <NewGoalWizard />;
 }

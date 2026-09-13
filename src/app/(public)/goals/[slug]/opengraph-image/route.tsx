@@ -1,5 +1,6 @@
 import { ImageResponse } from "@vercel/og";
 import { prisma } from "@/lib/prisma";
+import { formatAmount } from "@/lib/format";
 
 export const runtime = "nodejs";
 
@@ -19,12 +20,7 @@ export async function GET(
     ? Math.min(Math.max(((goal.currentAmount - goal.startAmount) / range) * 100, 0), 100)
     : 0;
 
-  const currencyFormatter = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: goal.currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
+  // formatting handled by formatAmount inline
 
   const isHit = goal.status === "HIT";
 
@@ -113,7 +109,7 @@ export async function GET(
                 color: "#1c1917",
               }}
             >
-              {currencyFormatter.format(goal.currentAmount)}
+              {formatAmount(goal.currentAmount, goal.currency)}
             </span>
             <span
               style={{
@@ -122,7 +118,7 @@ export async function GET(
                 color: "#a8a29e",
               }}
             >
-              / {currencyFormatter.format(goal.targetAmount)}
+              / {formatAmount(goal.targetAmount, goal.currency)}
             </span>
           </div>
 

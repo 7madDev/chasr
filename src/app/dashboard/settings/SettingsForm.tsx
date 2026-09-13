@@ -1,0 +1,124 @@
+"use client";
+
+import { useState } from "react";
+import { updateGlobalSettings } from "./actions";
+import { User, Link as LinkIcon, Save, CheckCircle2, AlertCircle } from "lucide-react";
+
+interface SettingsFormProps {
+  initialData: {
+    founderName: string;
+    founderLink: string | null;
+  };
+}
+
+export function SettingsForm({ initialData }: SettingsFormProps) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [founderName, setFounderName] = useState(initialData.founderName);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      await updateGlobalSettings(formData);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err: any) {
+      setError(err.message || "failed to update settings.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="w-full space-y-8">
+
+      {/* interactive avatar preview */}
+      <div className="flex flex-col items-center justify-center p-6 bg-neutral-50 dark:bg-zinc-900/50 rounded-2xl border border-neutral-100 dark:border-zinc-800/50 mb-8 transition-colors">
+        <div className="w-20 h-20 rounded-full bg-neutral-200 dark:bg-zinc-800 overflow-hidden mb-4 border-2 border-white dark:border-zinc-950 shadow-lg transition-transform hover:scale-105 hover:rotate-3 duration-300">
+          <img
+            src={`https://api.dicebear.com/7.x/notionists/svg?seed=${founderName || 'founder'}`}
+            alt="avatar preview"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <p className="text-[10px] font-mono uppercase tracking-widest text-neutral-400">avatar preview</p>
+      </div>
+
+      <div className="space-y-6">
+        <div className="space-y-3 group">
+          <label htmlFor="founderName" className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 group-focus-within:text-[#C13D19] transition-colors flex items-center gap-2">
+            <User className="w-3.5 h-3.5" /> your name
+          </label>
+          <input
+            id="founderName"
+            name="founderName"
+            type="text"
+            required
+            value={founderName}
+            onChange={(e) => setFounderName(e.target.value)}
+            className="w-full h-14 px-4 rounded-xl border border-neutral-200 dark:border-zinc-800 bg-neutral-50 dark:bg-zinc-900/50 focus:outline-none focus:ring-2 focus:ring-[#C13D19]/20 focus:border-[#C13D19] transition-all text-neutral-900 dark:text-zinc-50 font-semibold"
+          />
+        </div>
+
+        <div className="space-y-3 group">
+          <label htmlFor="founderLink" className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 group-focus-within:text-[#C13D19] transition-colors flex items-center gap-2">
+            <LinkIcon className="w-3.5 h-3.5" /> social link <span className="opacity-40">(optional)</span>
+          </label>
+          <input
+            id="founderLink"
+            name="founderLink"
+            type="url"
+            defaultValue={initialData.founderLink || ""}
+            placeholder="https://x.com/yourhandle"
+            className="w-full h-14 px-4 rounded-xl border border-neutral-200 dark:border-zinc-800 bg-neutral-50 dark:bg-zinc-900/50 focus:outline-none focus:ring-2 focus:ring-[#C13D19]/20 focus:border-[#C13D19] transition-all text-neutral-900 dark:text-zinc-50 font-semibold"
+          />
+        </div>
+      </div>
+
+      {error && (
+        <div className="rounded-2xl border border-red-200/50 dark:border-red-900/30 bg-red-50/80 dark:bg-red-900/10 px-5 py-4 text-sm text-red-600 dark:text-red-400 flex items-center gap-3 animate-in zoom-in-95">
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+          <p className="font-semibold">{error}</p>
+        </div>
+      )}
+
+      {success && (
+        <div className="rounded-2xl border border-green-200/50 dark:border-green-900/30 bg-green-50/80 dark:bg-green-900/10 px-5 py-4 text-sm text-green-600 dark:text-green-400 flex items-center gap-3 animate-in zoom-in-95">
+          <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+          <p className="font-semibold">profile updated successfully.</p>
+        </div>
+      )}
+
+      <div className="flex justify-end pt-4">
+        <button
+          type="submit"
+          disabled={loading}
+          className="group relative flex items-center justify-center w-full sm:w-auto px-10 h-14 rounded-2xl bg-gradient-to-r from-[#C13D19] to-[#E85D38] text-white font-bold uppercase tracking-widest text-xs hover:shadow-[0_0_30px_rgba(193,61,25,0.4)] transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none overflow-hidden"
+        >
+          <div className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+          <span className="relative flex items-center gap-2">
+            {loading ? (
+              <>
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                saving...
+              </>
+            ) : (
+              <>
+                save profile <Save className="w-4 h-4 ml-1 group-hover:scale-110 transition-transform" />
+              </>
+            )}
+          </span>
+        </button>
+      </div>
+    </form>
+  );
+}

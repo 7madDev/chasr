@@ -33,8 +33,6 @@ async function generateUniqueSlug(productName: string): Promise<string> {
 interface GoalData {
   productName: string;
   productUrl: string;
-  founderName: string;
-  founderLink: string;
   why: string;
   startAmount: number;
   targetAmount: number;
@@ -61,8 +59,6 @@ export async function createGoal(data: GoalData) {
   const {
     productName,
     productUrl,
-    founderName,
-    founderLink,
     why,
     startAmount,
     targetAmount,
@@ -73,8 +69,8 @@ export async function createGoal(data: GoalData) {
   const deadline = new Date(deadlineStr);
 
   // Validation
-  if (!productName || !founderName || !why) {
-    throw new Error("Product name, founder name, and why are required.");
+  if (!productName || !why) {
+    throw new Error("Product name and why are required.");
   }
   if (why.length > 280) {
     throw new Error("Why must be 280 characters or less.");
@@ -91,14 +87,14 @@ export async function createGoal(data: GoalData) {
 
   const slug = await generateUniqueSlug(productName);
 
+  // User is guaranteed to exist by auth callback
+
   await prisma.goal.create({
     data: {
       slug,
       ownerId: user.id,
       productName,
       productUrl: productUrl || null,
-      founderName,
-      founderLink: founderLink || null,
       why,
       startAmount,
       currentAmount: startAmount,

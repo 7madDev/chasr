@@ -38,3 +38,9 @@ export async function requireGoalOwnership(slug: string) {
 
   return { user, goal };
 }
+
+export async function signOut() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/");
+}

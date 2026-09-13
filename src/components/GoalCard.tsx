@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { formatAmount } from "@/lib/format";
 import type { GoalStatus } from "@/generated/prisma/enums";
 
 interface GoalCardProps {
@@ -83,19 +84,7 @@ export function GoalCard({
           %
         </span>
         <span className="font-mono text-xs text-muted-foreground/70 tabular-nums">
-          {new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency,
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          }).format(currentAmount)}{" "}
-          /{" "}
-          {new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency,
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-          }).format(targetAmount)}
+          {formatAmount(currentAmount, currency)} / {formatAmount(targetAmount, currency)}
         </span>
       </div>
     </Link>

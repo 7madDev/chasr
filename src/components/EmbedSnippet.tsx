@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export function EmbedSnippet({ slug }: { slug: string }) {
+export function EmbedSnippet({ slug, className, children }: { slug: string; className?: string; children?: React.ReactNode }) {
   const [show, setShow] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -19,12 +19,16 @@ export function EmbedSnippet({ slug }: { slug: string }) {
     <div>
       <button
         onClick={() => setShow(!show)}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-primary/10 transition-all"
+        className={className || "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-primary/10 transition-all"}
       >
-        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-        </svg>
-        Embed badge
+        {children || (
+          <>
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+            Embed badge
+          </>
+        )}
       </button>
 
       {show && (

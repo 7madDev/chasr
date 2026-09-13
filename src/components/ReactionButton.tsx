@@ -5,9 +5,11 @@ import { useState } from "react";
 interface ReactionButtonProps {
   slug: string;
   initialCount: number;
+  className?: string;
+  children?: React.ReactNode;
 }
 
-export function ReactionButton({ slug, initialCount }: ReactionButtonProps) {
+export function ReactionButton({ slug, initialCount, className, children }: ReactionButtonProps) {
   const [count, setCount] = useState(initialCount);
   const [reacted, setReacted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -32,15 +34,19 @@ export function ReactionButton({ slug, initialCount }: ReactionButtonProps) {
     <button
       onClick={handleReact}
       disabled={reacted || loading}
-      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+      className={className || `inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
         reacted
           ? "bg-primary/10 border-primary/30 text-primary cursor-default"
           : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:bg-primary/10 cursor-pointer"
       }`}
       title="Cheer them on!"
     >
-      <span className="text-base">🔥</span>
-      <span className="font-mono tabular-nums">{count}</span>
+      {children || (
+        <>
+          <span className="text-base">🔥</span>
+          <span className="font-mono tabular-nums">{count}</span>
+        </>
+      )}
     </button>
   );
 }

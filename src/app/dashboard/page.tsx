@@ -4,11 +4,12 @@ import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import type { Goal } from "@/generated/prisma/client";
+import { Plus, Target, Activity, CheckCircle2, Eye, ExternalLink } from "lucide-react";
 
 type GoalWithCount = Goal & { _count: { updates: number } };
 
 export const metadata: Metadata = {
-  title: "Dashboard",
+  title: "dashboard | chasr",
 };
 
 export default async function DashboardPage() {
@@ -22,170 +23,169 @@ export default async function DashboardPage() {
 
   const activeGoals = goals.filter((g) => g.status === "ACTIVE");
   const completedGoals = goals.filter((g) => g.status === "HIT");
-  const totalUpdates = goals.reduce((sum, g) => sum + g._count.updates, 0);
+  const totalViews = goals.reduce((sum, g) => sum + (g.views || 0), 0);
+  const totalUpdates = goals.reduce((sum, g) => sum + (g._count?.updates || 0), 0);
 
   return (
-    <div className="max-w-5xl mx-auto pb-12 animate-in fade-in duration-500">
-      {/* header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div className="max-w-7xl mx-auto py-10 px-4 animate-in fade-in duration-500">
+
+      {/* clean header */}
+      <div className="flex items-center justify-between gap-4 mb-8 pb-6 border-b border-neutral-100 dark:border-zinc-800/60">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Overview of your public revenue goals.
-          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-zinc-50">
+            dashboard.
+          </h1>
         </div>
+
         {goals.length > 0 && (
           <Link
             href="/dashboard/new"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all shadow-sm w-full sm:w-auto active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-neutral-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-medium hover:opacity-90 transition-opacity"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            New Goal
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">new goal</span>
           </Link>
         )}
       </div>
 
-      {/* stats row */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
-        <div className="rounded-xl border border-border/60 bg-card p-5 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-primary" />
-            <p className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">Revenue Chased</p>
-          </div>
-          <p className="text-2xl font-bold font-mono tabular-nums text-primary">
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: goals.length > 0 ? goals[0].currency : "USD",
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0,
-            }).format(goals.reduce((sum, g) => sum + (g.targetAmount || 0), 0))}
+      {/* flattened metrics grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div className="rounded-2xl border border-neutral-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 p-5 flex flex-col justify-between">
+          <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#C13D19] dark:text-[#E85D38] mb-3">
+            <Target className="w-3.5 h-3.5" />
+            total updates
           </p>
-        </div>
-        <div className="rounded-xl border border-border/60 bg-card p-5 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <p className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">Active Goals</p>
-          </div>
-          <p className="text-2xl font-bold font-mono tabular-nums text-foreground">{activeGoals.length}</p>
-        </div>
-        <div className="rounded-xl border border-border/60 bg-card p-5 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-green-500" />
-            <p className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">Completed</p>
-          </div>
-          <p className="text-2xl font-bold font-mono tabular-nums text-green-600 dark:text-green-500">{completedGoals.length}</p>
-        </div>
-        <div className="rounded-xl border border-border/60 bg-card p-5 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-purple-500" />
-            <p className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">Page Views</p>
-          </div>
-          <p className="text-2xl font-bold font-mono tabular-nums text-foreground">
-            {goals.reduce((sum, g) => sum + (g.views || 0), 0)}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border/60 bg-card p-5 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-blue-500" />
-            <p className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">Total Updates</p>
-          </div>
-          <p className="text-2xl font-bold font-mono tabular-nums text-foreground">
+          <p className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-neutral-900 dark:text-zinc-50 tracking-tight">
             {totalUpdates}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 p-5 flex flex-col justify-between">
+          <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-zinc-400 mb-3">
+            <Activity className="w-3.5 h-3.5 text-blue-500/70" />
+            active goals
+          </p>
+          <p className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-neutral-900 dark:text-zinc-50 tracking-tight">
+            {activeGoals.length}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 p-5 flex flex-col justify-between">
+          <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-zinc-400 mb-3">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/70" />
+            completed
+          </p>
+          <p className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-neutral-900 dark:text-zinc-50 tracking-tight">
+            {completedGoals.length}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 p-5 flex flex-col justify-between">
+          <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-zinc-400 mb-3">
+            <Eye className="w-3.5 h-3.5 text-purple-500/70" />
+            total views
+          </p>
+          <p className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-neutral-900 dark:text-zinc-50 tracking-tight">
+            {totalViews.toLocaleString()}
           </p>
         </div>
       </div>
 
-      {/* goals list / empty state */}
+      {/* goal state */}
       {goals.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border/80 bg-card/50 p-12 sm:p-16 text-center flex flex-col items-center">
-          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-5">
-            <span className="text-3xl">🎯</span>
-          </div>
-          <h2 className="font-bold text-xl mb-2 text-foreground">No goals yet</h2>
-          <p className="text-sm text-muted-foreground mb-8 max-w-sm mx-auto leading-relaxed">
-            Time to put a number on it. Create your first public revenue goal and start tracking your progress in the open.
+        <div className="rounded-2xl border border-dashed border-neutral-200 dark:border-zinc-800 p-12 text-center flex flex-col items-center">
+          <h2 className="font-semibold text-lg text-neutral-900 dark:text-zinc-100 mb-2">no goals yet</h2>
+          <p className="text-sm text-neutral-500 dark:text-zinc-400 mb-6 max-w-sm">
+            time to put a number on it. create your first public revenue goal and start tracking your progress in the open.
           </p>
           <Link
             href="/dashboard/new"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-sm"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#C13D19] text-white text-sm font-medium hover:bg-[#a63214] transition-colors"
           >
-            Create your first goal →
+            create first goal
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {goals.map((goal) => {
             const isHit = goal.status === "HIT";
+            const isArchived = goal.status === "ARCHIVED";
             const isPastDeadline = new Date() > new Date(goal.deadline) && !isHit;
             const daysLeft = Math.ceil((new Date(goal.deadline).getTime() - Date.now()) / 86400000);
 
             return (
               <div
                 key={goal.id}
-                className="group rounded-xl border border-border/60 bg-card p-6 shadow-sm hover:border-primary/20 hover:shadow-md transition-all flex flex-col h-full"
+                className={`group flex flex-col rounded-2xl border bg-white dark:bg-zinc-900/30 p-6 transition-all ${isArchived
+                  ? "border-neutral-200 dark:border-zinc-800/50 opacity-60 grayscale"
+                  : "border-neutral-200 dark:border-zinc-800 hover:border-neutral-300 dark:hover:border-zinc-700"
+                  }`}
               >
-                <div className="flex items-start justify-between mb-5">
+                {/* header */}
+                <div className="flex items-start justify-between mb-6">
                   <div>
-                    <h3 className="font-semibold text-lg text-foreground tracking-tight">{goal.productName}</h3>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {goal._count.updates} update{goal._count.updates !== 1 ? "s" : ""}
+                    <h3 className="font-bold text-xl text-neutral-900 dark:text-zinc-50 tracking-tight mb-1">
+                      {goal.productName}
+                    </h3>
+                    <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-zinc-400">
+                      <span>
+                        {isHit ? "target hit" : isPastDeadline ? "deadline passed" : `${daysLeft} days left`}
                       </span>
-                      <span className="text-muted-foreground/30 text-xs">•</span>
-                      <span className={`text-xs font-medium ${isHit ? "text-green-600" : isPastDeadline ? "text-destructive" : "text-muted-foreground"}`}>
-                        {isHit
-                          ? "🎉 target hit"
-                          : isPastDeadline
-                            ? "deadline passed"
-                            : `${daysLeft} days left`}
-                      </span>
+                      <span className="opacity-40">•</span>
+                      <span>{goal._count.updates} update{goal._count.updates !== 1 ? "s" : ""}</span>
                     </div>
                   </div>
-                  <div className="flex-shrink-0 ml-3">
-                    {isHit && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-600 border border-green-500/20">
-                        Hit
-                      </span>
-                    )}
-                    {goal.status === "ARCHIVED" && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-secondary text-muted-foreground border border-border">
-                        Archived
-                      </span>
-                    )}
-                    {goal.status === "ACTIVE" && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
-                        Active
-                      </span>
-                    )}
+
+                  {/* status badge */}
+                  <div>
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider ${isHit
+                      ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      : isArchived
+                        ? "bg-neutral-100 dark:bg-zinc-800 text-neutral-500"
+                        : "bg-[#FFF5F2] dark:bg-[#C13D19]/10 text-[#C13D19] dark:text-[#E85D38]"
+                      }`}>
+                      {goal.status}
+                    </span>
                   </div>
                 </div>
 
-                <div className="mb-6 flex-grow">
+                {/* progress */}
+                <div className="flex-grow mb-6">
                   <ProgressBar
                     start={goal.startAmount}
                     current={goal.currentAmount}
                     target={goal.targetAmount}
                     currency={goal.currency}
                     status={goal.status}
+                    size="md"
                   />
                 </div>
 
-                <div className="flex items-center gap-3 pt-4 border-t border-border/60 mt-auto">
+                {/* unified footer actions */}
+                <div className="flex items-center gap-3 pt-5 border-t border-neutral-100 dark:border-zinc-800/60 mt-auto">
                   {goal.status === "ACTIVE" && (
                     <Link
                       href={`/dashboard/goals/${goal.slug}/edit`}
-                      className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"
+                      className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-neutral-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
                     >
-                      Update progress
+                      log update
                     </Link>
                   )}
+
+                  <Link
+                    href={`/dashboard/goals/${goal.slug}/settings`}
+                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-neutral-100 dark:bg-zinc-800 text-neutral-600 dark:text-zinc-300 text-[11px] font-bold uppercase tracking-widest hover:bg-neutral-200 dark:hover:bg-zinc-700 transition-colors"
+                  >
+                    settings
+                  </Link>
+
                   <Link
                     href={`/goals/${goal.slug}`}
-                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-border/60 bg-transparent text-foreground text-xs font-semibold hover:bg-secondary transition-colors"
+                    target="_blank"
+                    className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-transparent text-neutral-400 hover:bg-neutral-100 dark:hover:bg-zinc-800 hover:text-neutral-900 dark:hover:text-zinc-100 transition-colors ml-auto"
+                    title="View public page"
                   >
-                    View public page ↗
+                    <ExternalLink className="w-4 h-4" />
                   </Link>
                 </div>
               </div>

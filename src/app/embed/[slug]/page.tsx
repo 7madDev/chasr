@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { formatAmount } from "@/lib/format";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://open.announcify.app";
 
@@ -18,12 +19,7 @@ export default async function EmbedPage({
     ? Math.min(Math.max(((goal.currentAmount - goal.startAmount) / range) * 100, 0), 100)
     : 0;
 
-  const currencyFormatter = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: goal.currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
+  // formatting handled inline
 
   const goalUrl = `${APP_URL}/goals/${slug}`;
 
@@ -122,7 +118,7 @@ export default async function EmbedPage({
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: "11px", fontFamily: "ui-monospace, monospace", color: "#78716c" }}>
-            {currencyFormatter.format(goal.currentAmount)} / {currencyFormatter.format(goal.targetAmount)}
+            {formatAmount(goal.currentAmount, goal.currency)} / {formatAmount(goal.targetAmount, goal.currency)}
           </span>
           <span style={{ fontSize: "10px" }}>
             <a

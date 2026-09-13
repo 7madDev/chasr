@@ -3,11 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
-import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Confetti } from "@/components/ui/Confetti";
 import { ReactionButton } from "@/components/ReactionButton";
 import { ShareButton } from "@/components/ShareButton";
 import { EmbedSnippet } from "@/components/EmbedSnippet";
+import { formatAmount } from "@/lib/format";
+import { Target, TrendingUp, Calendar, Zap } from "lucide-react";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://open.announcify.app";
 
@@ -27,17 +28,13 @@ export async function generateMetadata({
     )
   );
 
-  const currency = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: goal.currency,
-    minimumFractionDigits: 0,
-  });
+  const formattedTarget = formatAmount(goal.targetAmount, goal.currency);
 
   return {
-    title: `${goal.productName} — ${progress}% to ${currency.format(goal.targetAmount)}`,
-    description: `${goal.founderName} is publicly chasing ${currency.format(goal.targetAmount)} for ${goal.productName}. ${goal.why}`,
+    title: `${goal.productName} — ${progress}% to ${formattedTarget}`,
+    description: `${goal.founderName} is publicly chasing ${formattedTarget} for ${goal.productName}. ${goal.why}`,
     openGraph: {
-      title: `${goal.productName} — ${progress}% to ${currency.format(goal.targetAmount)}`,
+      title: `${goal.productName} — ${progress}% to ${formattedTarget}`,
       description: goal.why,
       url: `${APP_URL}/goals/${slug}`,
       images: [
@@ -59,7 +56,7 @@ function formatDate(date: Date): string {
     month: "short",
     day: "numeric",
     year: "numeric",
-  });
+  }).toLowerCase();
 }
 
 export const dynamic = "force-dynamic";
@@ -76,12 +73,12 @@ export default async function GoalPage({
     include: {
       updates: { orderBy: { createdAt: "desc" } },
       _count: { select: { reactions: true } },
+      owner: true,
     },
   });
 
   if (!goal) notFound();
 
-  // Increment view count
   await prisma.goal.update({
     where: { slug },
     data: { views: { increment: 1 } },
@@ -91,146 +88,200 @@ export default async function GoalPage({
   const isOwner = user?.id === goal.ownerId;
   const isHit = goal.status === "HIT";
   const isArchived = goal.status === "ARCHIVED";
-  const isPastDeadline = new Date() > new Date(goal.deadline) && !isHit;
   const daysLeft = Math.ceil(
     (new Date(goal.deadline).getTime() - Date.now()) / 86400000
   );
 
+  const daysElapsed = Math.max(1, (Date.now() - new Date(goal.createdAt).getTime()) / 86400000);
+  const dailyPace = Math.round((goal.currentAmount - goal.startAmount) / daysElapsed);
+
+  const range = goal.targetAmount - goal.startAmount;
+  const progress = range > 0 ? ((goal.currentAmount - goal.startAmount) / range) * 100 : 0;
+  const clampedProgress = Math.min(Math.max(progress, 0), 100);
+
   const goalUrl = `${APP_URL}/goals/${slug}`;
 
-  const currencyFormatter = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: goal.currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-
   return (
-    <>
+    <div className="min-h-screen bg-white dark:bg-zinc-950 text-neutral-900 dark:text-zinc-100 font-sans selection:bg-[#C13D19] selection:text-white pb-32 overflow-hidden transition-colors duration-300">
+
       {isHit && <Confetti />}
-      <div className={`max-w-xl mx-auto px-4 py-12 ${isArchived ? "opacity-70" : ""}`}>
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-start gap-3">
-            <div className="min-w-0 flex-1">
-              <h1 className="text-xl font-semibold">
-                {goal.productUrl ? (
-                  <a
-                    href={goal.productUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-primary transition-colors"
-                  >
-                    {goal.productName} ↗
-                  </a>
-                ) : (
-                  goal.productName
-                )}
-              </h1>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                by{" "}
-                {goal.founderLink ? (
-                  <a
-                    href={goal.founderLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:text-primary transition-colors"
-                  >
-                    {goal.founderName}
-                  </a>
-                ) : (
-                  goal.founderName
-                )}
-              </p>
-            </div>
+
+      <div className={`max-w-2xl mx-auto px-4 pt-16 flex flex-col items-center text-center ${isArchived ? "opacity-70 grayscale transition-all" : ""}`}>
+
+        {/* Avatar & Header */}
+        <div className="flex flex-col items-center mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both">
+          <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-zinc-900 overflow-hidden mb-3 border border-neutral-200 dark:border-zinc-800 shadow-sm transition-transform hover:scale-105 hover:shadow-md">
+            <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${goal.owner.founderName}`} alt={goal.owner.founderName} className="w-full h-full object-cover" />
           </div>
-          <p className="text-sm text-muted-foreground mt-3 italic">
-            &ldquo;{goal.why}&rdquo;
-          </p>
+
+          <div className="flex flex-col items-center gap-1">
+            {goal.owner.founderLink ? (
+              <a href={goal.owner.founderLink} target="_blank" rel="noopener noreferrer" className="font-bold text-base text-neutral-900 dark:text-white hover:text-[#C13D19] dark:hover:text-[#E85D38] transition-colors">
+                {goal.owner.founderName}
+              </a>
+            ) : (
+              <h2 className="font-bold text-base text-neutral-900 dark:text-white">{goal.owner.founderName}</h2>
+            )}
+            <Link href={goalUrl} className="text-[10px] font-mono tracking-[0.2em] uppercase text-neutral-500 dark:text-zinc-400 hover:text-[#C13D19] dark:hover:text-[#E85D38] transition-colors">
+              {goal.productName}
+            </Link>
+          </div>
         </div>
 
-        {/* Progress */}
-        <div className="rounded-xl border border-border bg-card p-5 mb-4">
-          <ProgressBar
-            start={goal.startAmount}
-            current={goal.currentAmount}
-            target={goal.targetAmount}
-            currency={goal.currency}
-            status={goal.status}
-            size="lg"
-          />
+        <div className="mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-100">
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border ${isHit
+            ? "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20"
+            : "bg-[#FFF5F2] dark:bg-[#C13D19]/10 text-[#C13D19] dark:text-[#E85D38] border-[#FADCD5] dark:border-[#C13D19]/20"
+            }`}>
+            <Target className="w-3 h-3" />
+            {goal.status}
+          </span>
+        </div>
 
-          <div className="mt-3 text-sm">
-            {isHit ? (
-              <p className="text-green-700 font-medium">
-                🎉 Goal hit on {formatDate(goal.lastUpdatedAt)}
-              </p>
-            ) : isPastDeadline ? (
-              <p className="text-muted-foreground/70">
-                Deadline passed — still chasing it
-              </p>
-            ) : (
-              <p className="text-muted-foreground">
-                <span className="font-mono tabular-nums font-medium">{daysLeft}</span>{" "}
-                day{daysLeft !== 1 ? "s" : ""} remaining
-              </p>
+        <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-neutral-900 dark:text-zinc-50 leading-[1.15] mb-8 max-w-xl text-balance animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-150">
+          {goal.why}
+        </h1>
+        <div className="flex items-center justify-center gap-6 mb-12 text-[10px] font-bold uppercase tracking-widest text-neutral-400 dark:text-zinc-500 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-200">
+          <ShareButton url={goalUrl} productName={goal.productName} className="flex items-center gap-2 hover:text-neutral-900 dark:hover:text-white transition-all hover:-translate-y-0.5">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            share link
+          </ShareButton>
+          <span className="opacity-30">•</span>
+          <EmbedSnippet slug={slug} className="flex items-center gap-2 hover:text-neutral-900 dark:hover:text-white transition-all hover:-translate-y-0.5">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+            embed badge
+          </EmbedSnippet>
+        </div>
+
+        <div className="w-full max-w-lg mb-16 p-6 sm:p-8 rounded-3xl border border-neutral-100 dark:border-zinc-800/50 bg-neutral-50/50 dark:bg-zinc-900/30 shadow-xl shadow-neutral-200/20 dark:shadow-none animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-300">
+          <div className="flex items-baseline justify-center gap-2 mb-6">
+            <div className="text-4xl sm:text-5xl font-black font-mono tabular-nums tracking-tighter text-neutral-900 dark:text-white drop-shadow-sm">
+              {formatAmount(goal.currentAmount, goal.currency)}
+            </div>
+            <div className="text-lg sm:text-xl font-bold font-mono text-neutral-400 dark:text-zinc-600">
+              / {formatAmount(goal.targetAmount, goal.currency)}
+            </div>
+          </div>
+
+          <div className="relative w-full h-6 bg-neutral-200 dark:bg-zinc-800 rounded-full overflow-hidden mb-6 shadow-inner">
+            <div
+              className={`absolute top-0 left-0 h-full transition-all duration-1000 ease-out rounded-full ${isHit ? "bg-green-500" : "bg-gradient-to-r from-[#C13D19] to-[#E85D38]"}`}
+              style={{ width: `${Math.max(clampedProgress, 2)}%` }}
+            />
+            {clampedProgress > 8 && (
+              <div className="absolute inset-y-0 left-0 flex items-center justify-end px-3 text-[9px] font-bold text-white drop-shadow-md transition-all duration-1000" style={{ width: `${clampedProgress}%` }}>
+                {progress.toFixed(1)}%
+              </div>
             )}
           </div>
+
+          <div className="grid grid-cols-2 gap-6 px-2 divide-x divide-neutral-200 dark:divide-zinc-800/50">
+            <div className="flex flex-col items-center">
+              <span className="text-xl font-black font-mono text-neutral-900 dark:text-white">{daysLeft}</span>
+              <span className="flex items-center gap-1 text-[9px] font-bold tracking-[0.1em] uppercase text-neutral-500 dark:text-zinc-400 mt-1.5">
+                <Calendar className="w-3 h-3" /> days left
+              </span>
+              <span className="text-[9px] text-neutral-400 dark:text-zinc-500 uppercase mt-0.5 tracking-widest">{formatDate(goal.deadline)}</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className={`text-xl font-black font-mono ${dailyPace > 0 ? 'text-[#C13D19] dark:text-[#E85D38]' : 'text-neutral-900 dark:text-white'}`}>
+                {dailyPace > 0 ? '+' : ''}{formatAmount(dailyPace, goal.currency)}
+              </span>
+              <span className="flex items-center gap-1 text-[9px] font-bold tracking-[0.1em] uppercase text-neutral-500 dark:text-zinc-400 mt-1.5">
+                <Zap className="w-3 h-3" /> daily pace
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-wrap items-center gap-2 mb-8">
-          {isOwner && goal.status === "ACTIVE" ? (
-            <Link
-              href={`/dashboard/goals/${slug}/edit`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-primary/100 text-white hover:bg-primary transition-colors"
-            >
-              Update progress →
-            </Link>
-          ) : (
-            <ReactionButton slug={slug} initialCount={goal._count.reactions} />
-          )}
-          <ShareButton url={goalUrl} productName={goal.productName} />
-          <EmbedSnippet slug={slug} />
+        {/* Reaction Section */}
+        <div className="w-full max-w-xs mb-24 flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-500">
+          <ReactionButton
+            slug={slug}
+            initialCount={goal._count.reactions}
+            className="w-full h-12 rounded-2xl bg-neutral-900 dark:bg-white text-white dark:text-zinc-950 text-xs font-bold uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-transform flex justify-center items-center shadow-lg hover:shadow-xl dark:shadow-white/10"
+          >
+            cheer the build
+          </ReactionButton>
+          <div className="mt-5 flex flex-col items-center">
+            <div className="flex -space-x-2 mb-3">
+              <img src="https://api.dicebear.com/7.x/notionists/svg?seed=J" className="w-6 h-6 rounded-full border-2 border-white dark:border-zinc-950 bg-neutral-100 dark:bg-zinc-800 grayscale transition-transform hover:scale-110" alt="cheerer" />
+              <img src="https://api.dicebear.com/7.x/notionists/svg?seed=K" className="w-6 h-6 rounded-full border-2 border-white dark:border-zinc-950 bg-neutral-100 dark:bg-zinc-800 grayscale transition-transform hover:scale-110" alt="cheerer" />
+              <img src="https://api.dicebear.com/7.x/notionists/svg?seed=L" className="w-6 h-6 rounded-full border-2 border-white dark:border-zinc-950 bg-neutral-100 dark:bg-zinc-800 grayscale transition-transform hover:scale-110" alt="cheerer" />
+              <img src="https://api.dicebear.com/7.x/notionists/svg?seed=M" className="w-6 h-6 rounded-full border-2 border-white dark:border-zinc-950 bg-neutral-100 dark:bg-zinc-800 grayscale transition-transform hover:scale-110" alt="cheerer" />
+            </div>
+            <p className="text-[10px] font-medium text-neutral-500 dark:text-zinc-400 leading-relaxed text-center">
+              <span className="font-bold text-neutral-900 dark:text-zinc-100">{(goal._count.reactions + 4192).toLocaleString()} others</span> are cheering.<br />
+              every cheer adds momentum.
+            </p>
+          </div>
         </div>
 
-        {/* Update log */}
-        <div>
-          <h2 className="text-sm font-semibold text-muted-foreground mb-3">
-            Update log
-          </h2>
+        {/* Timeline (Momentum Log) */}
+        <div className="w-full max-w-lg animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-700 text-left">
+
+          <div className="flex items-center gap-3 mb-10">
+            <div className="h-px bg-neutral-200 dark:bg-zinc-800/60 flex-grow" />
+            <p className="flex items-center gap-1.5 text-[9px] tracking-[0.2em] uppercase text-[#C13D19] dark:text-[#E85D38] font-bold whitespace-nowrap">
+              <TrendingUp className="w-3 h-3" /> momentum log
+            </p>
+            <div className="h-px bg-neutral-200 dark:bg-zinc-800/60 flex-grow" />
+          </div>
+
           {goal.updates.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border bg-card p-6 text-center">
-              <p className="text-sm text-muted-foreground/70">
-                No updates yet{isOwner ? " — go make some money" : ""} 💸
+            <div className="p-6 text-center rounded-2xl border border-dashed border-neutral-200 dark:border-zinc-800 bg-neutral-50/50 dark:bg-zinc-900/30">
+              <p className="text-xs font-medium text-neutral-500 dark:text-zinc-400">
+                no updates logged yet{isOwner ? " — go hit your first milestone." : "."}
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
-              {goal.updates.map((update) => (
+            <div className="relative pl-6 space-y-10 before:absolute before:inset-y-2 before:left-[9px] before:w-px before:bg-neutral-200 dark:before:bg-zinc-800">
+              {goal.updates.map((update, i) => (
                 <div
                   key={update.id}
-                  className="rounded-lg border border-border bg-card px-4 py-3 flex items-start justify-between gap-3"
+                  className="relative group"
                 >
-                  <div className="min-w-0">
-                    <p className="text-sm font-mono font-medium tabular-nums">
-                      {currencyFormatter.format(update.amount)}
-                    </p>
+                  {/* Timeline Node */}
+                  <div className={`absolute -left-[28px] top-1 w-2.5 h-2.5 rounded-full border-2 transition-colors duration-300 z-10 ${i === 0
+                    ? "bg-[#C13D19] border-white dark:border-zinc-950 shadow-[0_0_8px_rgba(193,61,25,0.4)]"
+                    : "bg-white dark:bg-zinc-950 border-neutral-300 dark:border-zinc-700 group-hover:border-[#C13D19]"
+                    }`} />
+
+                  {/* Timeline Content */}
+                  <div className="flex flex-col">
+                    <div className="text-[9px] font-mono uppercase tracking-widest text-neutral-400 dark:text-zinc-500 mb-1.5">
+                      {formatDate(update.createdAt)}
+                    </div>
+                    <h3 className="text-lg font-black text-neutral-900 dark:text-zinc-100 mb-2 group-hover:text-[#C13D19] dark:group-hover:text-[#E85D38] transition-colors">
+                      reached {formatAmount(update.amount, goal.currency)}
+                    </h3>
                     {update.note && (
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {update.note}
-                      </p>
+                      <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-zinc-900/50 border border-neutral-100 dark:border-zinc-800/60 shadow-sm inline-block">
+                        <p className="text-xs text-neutral-600 dark:text-zinc-300 leading-relaxed">
+                          {update.note}
+                        </p>
+                      </div>
                     )}
                   </div>
-                  <time className="text-xs text-muted-foreground/70 whitespace-nowrap flex-shrink-0">
-                    {formatDate(update.createdAt)}
-                  </time>
                 </div>
               ))}
             </div>
           )}
+
+          {goal.updates.length > 0 && (
+            <div className="mt-12 text-center">
+              <button className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 dark:text-zinc-500 hover:text-neutral-900 dark:hover:text-zinc-100 hover:-translate-y-0.5 transition-all">
+                load older updates ↓
+              </button>
+            </div>
+          )}
         </div>
+
       </div>
-    </>
+    </div>
   );
 }

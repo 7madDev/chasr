@@ -9,17 +9,6 @@ import { createAdminClient } from "@/lib/supabase/server";
 export async function updateProgress(slug: string, formData: FormData) {
   const { user, goal } = await requireGoalOwnership(slug);
 
-  // Rate-limit: 1 update per 5 minutes per goal
-  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-  const recentUpdate = await prisma.goalUpdate.findFirst({
-    where: {
-      goalId: goal.id,
-      createdAt: { gte: fiveMinutesAgo },
-    },
-  });
-  if (recentUpdate) {
-    throw new Error("Please wait 5 minutes between updates.");
-  }
 
   const amount = parseFloat(formData.get("amount") as string);
   const note = (formData.get("note") as string)?.trim() || null;

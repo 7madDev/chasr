@@ -4,11 +4,13 @@ import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import type { Goal } from "@/generated/prisma/client";
+import { DeleteGoalButton } from "./DeleteGoalButton";
+import { Plus, Settings, ExternalLink, PenSquare } from "lucide-react";
 
 type GoalWithCount = Goal & { _count: { updates: number; reactions: number } };
 
 export const metadata: Metadata = {
-  title: "My Goals",
+  title: "my goals | chasr",
 };
 
 export default async function MyGoalsPage() {
@@ -21,29 +23,40 @@ export default async function MyGoalsPage() {
   });
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
+    <div className="max-w-3xl mx-auto py-10 px-4 animate-in fade-in duration-500">
+
+      {/* clean header without distracting pills */}
+      <div className="flex items-center justify-between gap-4 mb-10 pb-6 border-b border-neutral-100 dark:border-zinc-800/60">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">My Goals</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Manage and update your public revenue goals.
-          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-zinc-50">
+            my goals
+          </h1>
         </div>
+
+        <Link
+          href="/dashboard/new"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-neutral-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-medium hover:opacity-90 transition-opacity"
+        >
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">new goal</span>
+        </Link>
       </div>
 
       {goals.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card p-16 text-center">
-          <div className="text-4xl mb-4">🏁</div>
-          <h2 className="font-bold text-lg mb-1">Start your journey</h2>
-          <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-            Set a public revenue goal and hold yourself accountable. Your progress will be visible to the community.
+        <div className="rounded-2xl border border-dashed border-neutral-200 dark:border-zinc-800 p-12 text-center flex flex-col items-center">
+          <h2 className="font-semibold text-lg text-neutral-900 dark:text-zinc-100 mb-2">no goals yet</h2>
+          <p className="text-sm text-neutral-500 dark:text-zinc-400 mb-6 max-w-sm">
+            set a public revenue goal and start tracking your progress in the open.
           </p>
-          <Link href="/dashboard/new" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all cursor-pointer shadow-sm">
-            Create your first goal →
+          <Link
+            href="/dashboard/new"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#C13D19] text-white text-sm font-medium hover:bg-[#a63214] transition-colors"
+          >
+            create first goal
           </Link>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-5">
           {goals.map((goal) => {
             const isHit = goal.status === "HIT";
             const isArchived = goal.status === "ARCHIVED";
@@ -55,65 +68,83 @@ export default async function MyGoalsPage() {
             return (
               <div
                 key={goal.id}
-                className={`rounded-xl border bg-card p-5 transition-all ${
-                  isArchived ? "border-border opacity-60" : "border-border hover:border-primary/40 hover:shadow-sm"
-                }`}
+                className={`group flex flex-col rounded-2xl border bg-white dark:bg-zinc-900/30 p-6 sm:p-7 transition-all ${isArchived
+                    ? "border-neutral-200 dark:border-zinc-800/50 opacity-60 grayscale"
+                    : "border-neutral-200 dark:border-zinc-800 hover:border-neutral-300 dark:hover:border-zinc-700"
+                  }`}
               >
-                <div className="flex items-start justify-between mb-3">
+                {/* header: visual weight on the title */}
+                <div className="flex items-start justify-between mb-6">
                   <div>
-                    <h3 className="font-semibold">{goal.productName}</h3>
-                    <p className="text-xs text-muted-foreground/70 mt-0.5">
-                      {isHit
-                        ? "🎉 Goal hit!"
-                        : isArchived
-                          ? "Archived"
-                          : isPastDeadline
-                            ? "Deadline passed"
-                            : `${daysLeft} day${daysLeft !== 1 ? "s" : ""} remaining`}
-                    </p>
+                    <h3 className="font-bold text-xl text-neutral-900 dark:text-zinc-50 tracking-tight mb-1">
+                      {goal.productName}
+                    </h3>
+                    <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-zinc-400">
+                      <span>
+                        {isHit ? "target hit" : isPastDeadline ? "deadline passed" : `${daysLeft} days left`}
+                      </span>
+                      <span className="opacity-40">•</span>
+                      <span>{goal._count.updates} update{goal._count.updates !== 1 ? "s" : ""}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0 ml-3">
-                    {isHit && (
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">
-                        ✓ Hit
-                      </span>
-                    )}
-                    {isArchived && (
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-stone-50 text-stone-500 border border-stone-200">
-                        Archived
-                      </span>
-                    )}
-                    {goal.status === "ACTIVE" && (
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/30">
-                        Active
-                      </span>
-                    )}
+
+                  {/* subtle status badge */}
+                  <div>
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider ${isHit
+                        ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                        : isArchived
+                          ? "bg-neutral-100 dark:bg-zinc-800 text-neutral-500"
+                          : "bg-[#FFF5F2] dark:bg-[#C13D19]/10 text-[#C13D19] dark:text-[#E85D38]"
+                      }`}>
+                      {goal.status}
+                    </span>
                   </div>
                 </div>
 
-                <ProgressBar
-                  start={goal.startAmount}
-                  current={goal.currentAmount}
-                  target={goal.targetAmount}
-                  currency={goal.currency}
-                  status={goal.status}
-                />
+                {/* progress bar */}
+                <div className="mb-6">
+                  <ProgressBar
+                    start={goal.startAmount}
+                    current={goal.currentAmount}
+                    target={goal.targetAmount}
+                    currency={goal.currency}
+                    status={goal.status}
+                    size="md"
+                  />
+                </div>
 
-                <div className="flex items-center gap-3 mt-4 pt-3 border-t border-border">
+                {/* actions: hierarchy established by keeping secondary actions subtle */}
+                <div className="flex items-center gap-4 pt-5 border-t border-neutral-100 dark:border-zinc-800/60 mt-auto">
                   {goal.status === "ACTIVE" && (
                     <Link
                       href={`/dashboard/goals/${goal.slug}/edit`}
-                      className="text-xs font-medium text-primary hover:text-primary transition-colors"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-neutral-100 dark:bg-zinc-800 text-neutral-900 dark:text-zinc-100 text-sm font-medium hover:bg-neutral-200 dark:hover:bg-zinc-700 transition-colors"
                     >
-                      Update progress →
+                      <PenSquare className="w-3.5 h-3.5" />
+                      update
                     </Link>
                   )}
+
+                  <Link
+                    href={`/dashboard/goals/${goal.slug}/settings`}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-500 hover:text-neutral-900 dark:hover:text-zinc-100 transition-colors"
+                  >
+                    <Settings className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">settings</span>
+                  </Link>
+
                   <Link
                     href={`/goals/${goal.slug}`}
-                    className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    target="_blank"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-500 hover:text-[#C13D19] dark:hover:text-[#E85D38] transition-colors"
                   >
-                    View public page ↗
+                    <span className="hidden sm:inline">view</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
                   </Link>
+
+                  <div className="ml-auto opacity-50 hover:opacity-100 transition-opacity">
+                    <DeleteGoalButton slug={goal.slug} />
+                  </div>
                 </div>
               </div>
             );
