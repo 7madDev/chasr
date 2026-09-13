@@ -28,18 +28,21 @@ export type UserMinAggregateOutputType = {
   id: string | null
   founderName: string | null
   founderLink: string | null
+  avatarUrl: string | null
 }
 
 export type UserMaxAggregateOutputType = {
   id: string | null
   founderName: string | null
   founderLink: string | null
+  avatarUrl: string | null
 }
 
 export type UserCountAggregateOutputType = {
   id: number
   founderName: number
   founderLink: number
+  avatarUrl: number
   _all: number
 }
 
@@ -48,18 +51,21 @@ export type UserMinAggregateInputType = {
   id?: true
   founderName?: true
   founderLink?: true
+  avatarUrl?: true
 }
 
 export type UserMaxAggregateInputType = {
   id?: true
   founderName?: true
   founderLink?: true
+  avatarUrl?: true
 }
 
 export type UserCountAggregateInputType = {
   id?: true
   founderName?: true
   founderLink?: true
+  avatarUrl?: true
   _all?: true
 }
 
@@ -139,6 +145,7 @@ export type UserGroupByOutputType = {
   id: string
   founderName: string
   founderLink: string | null
+  avatarUrl: string | null
   _count: UserCountAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
@@ -166,6 +173,7 @@ export type UserWhereInput = {
   id?: Prisma.StringFilter<"User"> | string
   founderName?: Prisma.StringFilter<"User"> | string
   founderLink?: Prisma.StringNullableFilter<"User"> | string | null
+  avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   goals?: Prisma.GoalListRelationFilter
 }
 
@@ -173,6 +181,7 @@ export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   founderName?: Prisma.SortOrder
   founderLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   goals?: Prisma.GoalOrderByRelationAggregateInput
 }
 
@@ -183,6 +192,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   founderName?: Prisma.StringFilter<"User"> | string
   founderLink?: Prisma.StringNullableFilter<"User"> | string | null
+  avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   goals?: Prisma.GoalListRelationFilter
 }, "id">
 
@@ -190,6 +200,7 @@ export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   founderName?: Prisma.SortOrder
   founderLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
@@ -202,12 +213,14 @@ export type UserScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
   founderName?: Prisma.StringWithAggregatesFilter<"User"> | string
   founderLink?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
 }
 
 export type UserCreateInput = {
   id: string
   founderName: string
   founderLink?: string | null
+  avatarUrl?: string | null
   goals?: Prisma.GoalCreateNestedManyWithoutOwnerInput
 }
 
@@ -215,6 +228,7 @@ export type UserUncheckedCreateInput = {
   id: string
   founderName: string
   founderLink?: string | null
+  avatarUrl?: string | null
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutOwnerInput
 }
 
@@ -222,6 +236,7 @@ export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   founderName?: Prisma.StringFieldUpdateOperationsInput | string
   founderLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goals?: Prisma.GoalUpdateManyWithoutOwnerNestedInput
 }
 
@@ -229,6 +244,7 @@ export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   founderName?: Prisma.StringFieldUpdateOperationsInput | string
   founderLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goals?: Prisma.GoalUncheckedUpdateManyWithoutOwnerNestedInput
 }
 
@@ -236,36 +252,42 @@ export type UserCreateManyInput = {
   id: string
   founderName: string
   founderLink?: string | null
+  avatarUrl?: string | null
 }
 
 export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   founderName?: Prisma.StringFieldUpdateOperationsInput | string
   founderLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   founderName?: Prisma.StringFieldUpdateOperationsInput | string
   founderLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   founderName?: Prisma.SortOrder
   founderLink?: Prisma.SortOrder
+  avatarUrl?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   founderName?: Prisma.SortOrder
   founderLink?: Prisma.SortOrder
+  avatarUrl?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   founderName?: Prisma.SortOrder
   founderLink?: Prisma.SortOrder
+  avatarUrl?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -299,12 +321,14 @@ export type UserCreateWithoutGoalsInput = {
   id: string
   founderName: string
   founderLink?: string | null
+  avatarUrl?: string | null
 }
 
 export type UserUncheckedCreateWithoutGoalsInput = {
   id: string
   founderName: string
   founderLink?: string | null
+  avatarUrl?: string | null
 }
 
 export type UserCreateOrConnectWithoutGoalsInput = {
@@ -327,12 +351,14 @@ export type UserUpdateWithoutGoalsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   founderName?: Prisma.StringFieldUpdateOperationsInput | string
   founderLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type UserUncheckedUpdateWithoutGoalsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   founderName?: Prisma.StringFieldUpdateOperationsInput | string
   founderLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -370,6 +396,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   id?: boolean
   founderName?: boolean
   founderLink?: boolean
+  avatarUrl?: boolean
   goals?: boolean | Prisma.User$goalsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
@@ -378,21 +405,24 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   founderName?: boolean
   founderLink?: boolean
+  avatarUrl?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   founderName?: boolean
   founderLink?: boolean
+  avatarUrl?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
   id?: boolean
   founderName?: boolean
   founderLink?: boolean
+  avatarUrl?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "founderName" | "founderLink", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "founderName" | "founderLink" | "avatarUrl", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   goals?: boolean | Prisma.User$goalsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -409,6 +439,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     id: string
     founderName: string
     founderLink: string | null
+    avatarUrl: string | null
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -836,6 +867,7 @@ export interface UserFieldRefs {
   readonly id: Prisma.FieldRef<"User", 'String'>
   readonly founderName: Prisma.FieldRef<"User", 'String'>
   readonly founderLink: Prisma.FieldRef<"User", 'String'>
+  readonly avatarUrl: Prisma.FieldRef<"User", 'String'>
 }
     
 

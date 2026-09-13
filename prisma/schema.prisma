@@ -11,6 +11,7 @@ model User {
   id          String  @id
   founderName String
   founderLink String?
+  avatarUrl   String? @db.Text
   goals       Goal[]
 }
 

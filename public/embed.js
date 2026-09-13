@@ -11,7 +11,7 @@
     var iframe = document.createElement("iframe");
     iframe.src = origin + "/embed/" + slug;
     iframe.style.width = "320px";
-    iframe.style.height = "80px";
+    iframe.style.height = "180px";
     iframe.style.border = "none";
     iframe.style.borderRadius = "8px";
     iframe.style.overflow = "hidden";

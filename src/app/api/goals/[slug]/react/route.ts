@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { createHash } from "crypto";
+import { getSession } from "@/lib/auth";
 
 export async function POST(
   request: Request,
@@ -18,29 +17,42 @@ export async function POST(
     return NextResponse.json({ error: "Goal not found" }, { status: 404 });
   }
 
-  // Compute fingerprint
-  const headersList = await headers();
-  const ip = headersList.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const ua = headersList.get("user-agent") || "unknown";
-  const salt = process.env.CRON_SECRET || "chasr-salt";
-  const fingerprint = createHash("sha256")
-    .update(`${ip}:${ua}:${salt}`)
-    .digest("hex");
-
-  try {
-    await prisma.reaction.create({
-      data: {
-        goalId: goal.id,
-        emoji: "🔥",
-        fingerprint,
-      },
-    });
-  } catch {
-    // Unique constraint violation — already reacted
-    const count = await prisma.reaction.count({ where: { goalId: goal.id } });
-    return NextResponse.json({ count, alreadyReacted: true });
+  const user = await getSession();
+  
+  if (!user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const count = await prisma.reaction.count({ where: { goalId: goal.id } });
-  return NextResponse.json({ count, alreadyReacted: false });
+  const fingerprint = user.id;
+
+  try {
+    const existing = await prisma.reaction.findUnique({
+      where: {
+        goalId_fingerprint: {
+          goalId: goal.id,
+          fingerprint,
+        },
+      },
+    });
+
+    if (existing) {
+      await prisma.reaction.delete({
+        where: { id: existing.id },
+      });
+      const count = await prisma.reaction.count({ where: { goalId: goal.id } });
+      return NextResponse.json({ count, alreadyReacted: false, fingerprint });
+    } else {
+      await prisma.reaction.create({
+        data: {
+          goalId: goal.id,
+          emoji: "🔥",
+          fingerprint,
+        },
+      });
+      const count = await prisma.reaction.count({ where: { goalId: goal.id } });
+      return NextResponse.json({ count, alreadyReacted: true, fingerprint });
+    }
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to react" }, { status: 500 });
+  }
 }

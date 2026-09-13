@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { Confetti } from "@/components/ui/Confetti";
-import { ReactionButton } from "@/components/ReactionButton";
+import { SupportWidget } from "@/components/SupportWidget";
 import { ShareButton } from "@/components/ShareButton";
 import { EmbedSnippet } from "@/components/EmbedSnippet";
 import { formatAmount } from "@/lib/format";
@@ -74,6 +74,11 @@ export default async function GoalPage({
       updates: { orderBy: { createdAt: "desc" } },
       _count: { select: { reactions: true } },
       owner: true,
+      reactions: {
+        take: 4,
+        orderBy: { createdAt: "desc" },
+        select: { fingerprint: true },
+      },
     },
   });
 
@@ -91,6 +96,19 @@ export default async function GoalPage({
   const daysLeft = Math.ceil(
     (new Date(goal.deadline).getTime() - Date.now()) / 86400000
   );
+
+  let hasReacted = false;
+  if (user?.id) {
+    const existingReaction = await prisma.reaction.findUnique({
+      where: {
+        goalId_fingerprint: {
+          goalId: goal.id,
+          fingerprint: user.id,
+        }
+      }
+    });
+    hasReacted = !!existingReaction;
+  }
 
   const daysElapsed = Math.max(1, (Date.now() - new Date(goal.createdAt).getTime()) / 86400000);
   const dailyPace = Math.round((goal.currentAmount - goal.startAmount) / daysElapsed);
@@ -111,7 +129,7 @@ export default async function GoalPage({
         {/* Avatar & Header */}
         <div className="flex flex-col items-center mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both">
           <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-zinc-900 overflow-hidden mb-3 border border-neutral-200 dark:border-zinc-800 shadow-sm transition-transform hover:scale-105 hover:shadow-md">
-            <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${goal.owner.founderName}`} alt={goal.owner.founderName} className="w-full h-full object-cover" />
+            <img src={goal.owner.avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${goal.owner.founderName}`} alt={goal.owner.founderName} className="w-full h-full object-cover" />
           </div>
 
           <div className="flex flex-col items-center gap-1">
@@ -157,9 +175,9 @@ export default async function GoalPage({
           </EmbedSnippet>
         </div>
 
-        <div className="w-full max-w-lg mb-16 p-6 sm:p-8 rounded-3xl border border-neutral-100 dark:border-zinc-800/50 bg-neutral-50/50 dark:bg-zinc-900/30 shadow-xl shadow-neutral-200/20 dark:shadow-none animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-300">
+        <div className="w-full max-w-lg mb-16 p-6 sm:p-8 rounded-3xl border border-neutral-100 dark:border-zinc-800 bg-neutral-50 dark:bg-zinc-900 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-300">
           <div className="flex items-baseline justify-center gap-2 mb-6">
-            <div className="text-4xl sm:text-5xl font-black font-mono tabular-nums tracking-tighter text-neutral-900 dark:text-white drop-shadow-sm">
+            <div className="text-4xl sm:text-5xl font-black font-mono tabular-nums tracking-tighter text-neutral-900 dark:text-white">
               {formatAmount(goal.currentAmount, goal.currency)}
             </div>
             <div className="text-lg sm:text-xl font-bold font-mono text-neutral-400 dark:text-zinc-600">
@@ -167,7 +185,7 @@ export default async function GoalPage({
             </div>
           </div>
 
-          <div className="relative w-full h-6 bg-neutral-200 dark:bg-zinc-800 rounded-full overflow-hidden mb-6 shadow-inner">
+          <div className="relative w-full h-6 bg-neutral-200 dark:bg-zinc-800 rounded-full overflow-hidden mb-6">
             <div
               className={`absolute top-0 left-0 h-full transition-all duration-1000 ease-out rounded-full ${isHit ? "bg-green-500" : "bg-gradient-to-r from-[#C13D19] to-[#E85D38]"}`}
               style={{ width: `${Math.max(clampedProgress, 2)}%` }}
@@ -199,27 +217,13 @@ export default async function GoalPage({
         </div>
 
         {/* Reaction Section */}
-        <div className="w-full max-w-xs mb-24 flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-500">
-          <ReactionButton
-            slug={slug}
-            initialCount={goal._count.reactions}
-            className="w-full h-12 rounded-2xl bg-neutral-900 dark:bg-white text-white dark:text-zinc-950 text-xs font-bold uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-transform flex justify-center items-center shadow-lg hover:shadow-xl dark:shadow-white/10"
-          >
-            cheer the build
-          </ReactionButton>
-          <div className="mt-5 flex flex-col items-center">
-            <div className="flex -space-x-2 mb-3">
-              <img src="https://api.dicebear.com/7.x/notionists/svg?seed=J" className="w-6 h-6 rounded-full border-2 border-white dark:border-zinc-950 bg-neutral-100 dark:bg-zinc-800 grayscale transition-transform hover:scale-110" alt="cheerer" />
-              <img src="https://api.dicebear.com/7.x/notionists/svg?seed=K" className="w-6 h-6 rounded-full border-2 border-white dark:border-zinc-950 bg-neutral-100 dark:bg-zinc-800 grayscale transition-transform hover:scale-110" alt="cheerer" />
-              <img src="https://api.dicebear.com/7.x/notionists/svg?seed=L" className="w-6 h-6 rounded-full border-2 border-white dark:border-zinc-950 bg-neutral-100 dark:bg-zinc-800 grayscale transition-transform hover:scale-110" alt="cheerer" />
-              <img src="https://api.dicebear.com/7.x/notionists/svg?seed=M" className="w-6 h-6 rounded-full border-2 border-white dark:border-zinc-950 bg-neutral-100 dark:bg-zinc-800 grayscale transition-transform hover:scale-110" alt="cheerer" />
-            </div>
-            <p className="text-[10px] font-medium text-neutral-500 dark:text-zinc-400 leading-relaxed text-center">
-              <span className="font-bold text-neutral-900 dark:text-zinc-100">{(goal._count.reactions + 4192).toLocaleString()} others</span> are cheering.<br />
-              every cheer adds momentum.
-            </p>
-          </div>
-        </div>
+        <SupportWidget 
+          slug={slug} 
+          initialCount={goal._count.reactions} 
+          initialAvatars={goal.reactions.map(r => r.fingerprint)} 
+          initialReacted={hasReacted}
+          isLoggedIn={!!user?.id}
+        />
 
         {/* Timeline (Momentum Log) */}
         <div className="w-full max-w-lg animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-700 text-left">
@@ -247,7 +251,7 @@ export default async function GoalPage({
                 >
                   {/* Timeline Node */}
                   <div className={`absolute -left-[28px] top-1 w-2.5 h-2.5 rounded-full border-2 transition-colors duration-300 z-10 ${i === 0
-                    ? "bg-[#C13D19] border-white dark:border-zinc-950 shadow-[0_0_8px_rgba(193,61,25,0.4)]"
+                    ? "bg-[#C13D19] border-white dark:border-zinc-950"
                     : "bg-white dark:bg-zinc-950 border-neutral-300 dark:border-zinc-700 group-hover:border-[#C13D19]"
                     }`} />
 
@@ -260,7 +264,7 @@ export default async function GoalPage({
                       reached {formatAmount(update.amount, goal.currency)}
                     </h3>
                     {update.note && (
-                      <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-zinc-900/50 border border-neutral-100 dark:border-zinc-800/60 shadow-sm inline-block">
+                      <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-zinc-900/50 border border-neutral-100 dark:border-zinc-800/60 inline-block">
                         <p className="text-xs text-neutral-600 dark:text-zinc-300 leading-relaxed">
                           {update.note}
                         </p>

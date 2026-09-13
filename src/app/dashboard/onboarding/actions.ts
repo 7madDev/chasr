@@ -8,6 +8,7 @@ export async function completeOnboarding(formData: FormData) {
   const user = await requireAuth();
   const founderName = formData.get("founderName") as string;
   const founderLink = formData.get("founderLink") as string;
+  const avatarUrl = formData.get("avatarUrl") as string;
 
   if (!founderName || founderName.trim().length === 0) {
     throw new Error("name is required.");
@@ -18,6 +19,7 @@ export async function completeOnboarding(formData: FormData) {
     data: {
       founderName: founderName.trim(),
       founderLink: founderLink ? founderLink.trim() : null,
+      avatarUrl: avatarUrl ? avatarUrl.trim() : null,
     },
   });
 

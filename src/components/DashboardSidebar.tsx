@@ -30,7 +30,7 @@ const NAV_ITEMS = [
   },
 ];
 
-export function DashboardSidebar({ userName }: { userName: string }) {
+export function DashboardSidebar({ userName, avatarUrl }: { userName: string, avatarUrl?: string | null }) {
   const pathname = usePathname();
 
   function isActive(href: string, exact?: boolean) {
@@ -44,18 +44,15 @@ export function DashboardSidebar({ userName }: { userName: string }) {
 
       {/* Brand Header */}
       <div className="p-6 pb-8">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-8 h-8 rounded-lg bg-[#C13D19] flex items-center justify-center shadow-lg shadow-[#C13D19]/20 group-hover:scale-105 transition-transform">
-            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-black tracking-tight text-neutral-900 dark:text-white leading-none">chasr.</span>
-            <span className="text-[9px] font-mono uppercase tracking-widest text-[#C13D19] dark:text-[#E85D38] font-bold mt-1">
-              stay accountable
-            </span>
-          </div>
+        <Link href="/" className="flex flex-col gap-2 group hover:opacity-80 transition-opacity">
+          <img
+            src="/chasr.png"
+            alt="Chasr Logo"
+            className="h-8 w-auto object-contain self-start ml-1"
+          />
+          <span className="text-[9px] font-mono uppercase tracking-widest text-neutral-400 dark:text-zinc-500 font-bold ml-1">
+            stay accountable
+          </span>
         </Link>
       </div>
 
@@ -63,7 +60,7 @@ export function DashboardSidebar({ userName }: { userName: string }) {
       <div className="px-5 mb-8">
         <Link
           href="/dashboard/new"
-          className="group relative flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-gradient-to-r from-[#C13D19] to-[#E85D38] text-white text-xs font-bold uppercase tracking-widest hover:shadow-[0_0_20px_rgba(193,61,25,0.3)] transition-all hover:-translate-y-0.5 active:translate-y-0 overflow-hidden"
+          className="group relative flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-gradient-to-r from-[#C13D19] to-[#E85D38] text-white text-xs font-bold uppercase tracking-widest transition-all hover:-translate-y-0.5 active:translate-y-0 overflow-hidden"
         >
           <div className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
           <span className="relative flex items-center gap-2">
@@ -87,7 +84,7 @@ export function DashboardSidebar({ userName }: { userName: string }) {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={`group flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${active
-                  ? "bg-neutral-100 dark:bg-zinc-900 text-neutral-900 dark:text-white shadow-sm"
+                  ? "bg-neutral-100 dark:bg-zinc-900 text-neutral-900 dark:text-white"
                   : "text-neutral-500 dark:text-zinc-400 hover:bg-neutral-50 dark:hover:bg-zinc-900/50 hover:text-neutral-900 dark:hover:text-zinc-200"
                 }`}
             >
@@ -109,7 +106,7 @@ export function DashboardSidebar({ userName }: { userName: string }) {
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-9 h-9 rounded-full bg-neutral-200 dark:bg-zinc-800 overflow-hidden flex-shrink-0 border border-white dark:border-zinc-700">
               <img
-                src={`https://api.dicebear.com/7.x/notionists/svg?seed=${userName}`}
+                src={avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${userName}`}
                 alt={userName}
                 className="w-full h-full object-cover"
               />

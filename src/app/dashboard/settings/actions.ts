@@ -9,6 +9,7 @@ export async function updateGlobalSettings(formData: FormData) {
 
   const founderName = formData.get("founderName") as string;
   const founderLink = (formData.get("founderLink") as string)?.trim() || null;
+  const avatarUrl = (formData.get("avatarUrl") as string)?.trim() || null;
 
   if (!founderName || founderName.trim() === "") {
     throw new Error("Founder name is required.");
@@ -19,11 +20,13 @@ export async function updateGlobalSettings(formData: FormData) {
     update: {
       founderName,
       founderLink,
+      avatarUrl,
     },
     create: {
       id: user.id,
       founderName,
       founderLink,
+      avatarUrl,
     },
   });
 

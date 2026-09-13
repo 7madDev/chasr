@@ -37,6 +37,7 @@ export default async function SettingsPage() {
           initialData={{
             founderName: user?.founderName || "founder",
             founderLink: user?.founderLink || null,
+            avatarUrl: user?.avatarUrl || null,
           }}
         />
       </div>
