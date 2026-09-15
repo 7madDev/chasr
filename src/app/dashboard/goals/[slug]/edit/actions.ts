@@ -9,6 +9,9 @@ import { createAdminClient } from "@/lib/supabase/server";
 export async function updateProgress(slug: string, formData: FormData) {
   const { user, goal } = await requireGoalOwnership(slug);
 
+  if (goal.status === "ACTIVE" && new Date() > new Date(goal.deadline)) {
+    throw new Error("Deadline has passed. You can no longer update this goal.");
+  }
 
   const amount = parseFloat(formData.get("amount") as string);
   const note = (formData.get("note") as string)?.trim() || null;

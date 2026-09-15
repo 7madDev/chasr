@@ -89,7 +89,7 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
           className="w-20 h-20 rounded-full bg-neutral-200 dark:bg-zinc-800 overflow-hidden mb-4 border-2 border-white dark:border-zinc-950 shadow-lg cursor-pointer transition-transform hover:scale-105 hover:rotate-3 duration-300 relative group"
         >
           <img
-            src={avatarData || `https://api.dicebear.com/7.x/notionists/svg?seed=${founderName || 'founder'}`}
+            src={avatarData || "/avatar.svg"}
             alt="avatar preview"
             className="w-full h-full object-cover"
           />

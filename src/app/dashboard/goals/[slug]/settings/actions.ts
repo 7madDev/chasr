@@ -10,15 +10,8 @@ export async function updateGoalSettings(slug: string, formData: FormData) {
   const productName = formData.get("productName") as string;
   const productUrl = (formData.get("productUrl") as string)?.trim() || null;
   const why = formData.get("why") as string;
-  const deadlineStr = formData.get("deadline") as string;
-
-  if (!productName || !why || !deadlineStr) {
+  if (!productName || !why) {
     throw new Error("Missing required fields.");
-  }
-
-  const deadline = new Date(deadlineStr);
-  if (isNaN(deadline.getTime())) {
-    throw new Error("Invalid deadline date.");
   }
 
   if (why.length > 280) {
@@ -31,7 +24,6 @@ export async function updateGoalSettings(slug: string, formData: FormData) {
       productName,
       productUrl,
       why,
-      deadline,
     },
   });
 

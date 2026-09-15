@@ -22,8 +22,8 @@ export default async function DashboardLayout({
   return (
     <div className="flex min-h-screen bg-background">
       <DashboardSidebar userName={userName} avatarUrl={dbUser?.avatarUrl || null} />
-      <main className="flex-1 md:ml-72 min-h-screen">
-        <div className="max-w-5xl mx-auto px-8 py-10">{children}</div>
+      <main className="flex-1 md:ml-72 min-h-screen pt-16 md:pt-0">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 sm:py-10">{children}</div>
       </main>
     </div>
   );

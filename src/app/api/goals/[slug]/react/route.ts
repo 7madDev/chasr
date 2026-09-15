@@ -25,6 +25,13 @@ export async function POST(
 
   const fingerprint = user.id;
 
+  const dbUser = await prisma.user.findUnique({
+    where: { id: fingerprint },
+    select: { avatarUrl: true }
+  });
+  const avatarUrl = dbUser?.avatarUrl || "/avatar.svg";
+  const supporter = { id: fingerprint, avatarUrl };
+
   try {
     const existing = await prisma.reaction.findUnique({
       where: {
@@ -40,17 +47,16 @@ export async function POST(
         where: { id: existing.id },
       });
       const count = await prisma.reaction.count({ where: { goalId: goal.id } });
-      return NextResponse.json({ count, alreadyReacted: false, fingerprint });
+      return NextResponse.json({ count, alreadyReacted: false, supporter });
     } else {
       await prisma.reaction.create({
         data: {
           goalId: goal.id,
-          emoji: "🔥",
           fingerprint,
         },
       });
       const count = await prisma.reaction.count({ where: { goalId: goal.id } });
-      return NextResponse.json({ count, alreadyReacted: true, fingerprint });
+      return NextResponse.json({ count, alreadyReacted: true, supporter });
     }
   } catch (error) {
     return NextResponse.json({ error: "Failed to react" }, { status: 500 });

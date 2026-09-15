@@ -12,7 +12,7 @@ export function Footer() {
           chasr
         </Link>
 
-        <div className="flex items-center gap-8 text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-400 dark:text-zinc-500">
+        {/* <div className="flex items-center gap-8 text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-400 dark:text-zinc-500">
           <Link href="/privacy" className="hover:text-neutral-900 dark:hover:text-zinc-100 transition-colors">
             privacy
           </Link>
@@ -22,7 +22,7 @@ export function Footer() {
           <Link href="https://x.com/erramix01" target="_blank" className="hover:text-neutral-900 dark:hover:text-zinc-100 transition-colors">
             twitter
           </Link>
-        </div>
+        </div> */}
 
         <div className="text-[10px] tracking-[0.15em] uppercase text-neutral-400/80 dark:text-zinc-600 text-center leading-relaxed">
           © {new Date().getFullYear()} chasr. powered by{" "}

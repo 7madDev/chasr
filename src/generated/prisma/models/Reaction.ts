@@ -27,7 +27,6 @@ export type AggregateReaction = {
 export type ReactionMinAggregateOutputType = {
   id: string | null
   goalId: string | null
-  emoji: string | null
   fingerprint: string | null
   createdAt: Date | null
 }
@@ -35,7 +34,6 @@ export type ReactionMinAggregateOutputType = {
 export type ReactionMaxAggregateOutputType = {
   id: string | null
   goalId: string | null
-  emoji: string | null
   fingerprint: string | null
   createdAt: Date | null
 }
@@ -43,7 +41,6 @@ export type ReactionMaxAggregateOutputType = {
 export type ReactionCountAggregateOutputType = {
   id: number
   goalId: number
-  emoji: number
   fingerprint: number
   createdAt: number
   _all: number
@@ -53,7 +50,6 @@ export type ReactionCountAggregateOutputType = {
 export type ReactionMinAggregateInputType = {
   id?: true
   goalId?: true
-  emoji?: true
   fingerprint?: true
   createdAt?: true
 }
@@ -61,7 +57,6 @@ export type ReactionMinAggregateInputType = {
 export type ReactionMaxAggregateInputType = {
   id?: true
   goalId?: true
-  emoji?: true
   fingerprint?: true
   createdAt?: true
 }
@@ -69,7 +64,6 @@ export type ReactionMaxAggregateInputType = {
 export type ReactionCountAggregateInputType = {
   id?: true
   goalId?: true
-  emoji?: true
   fingerprint?: true
   createdAt?: true
   _all?: true
@@ -150,7 +144,6 @@ export type ReactionGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type ReactionGroupByOutputType = {
   id: string
   goalId: string
-  emoji: string
   fingerprint: string
   createdAt: Date
   _count: ReactionCountAggregateOutputType | null
@@ -179,7 +172,6 @@ export type ReactionWhereInput = {
   NOT?: Prisma.ReactionWhereInput | Prisma.ReactionWhereInput[]
   id?: Prisma.StringFilter<"Reaction"> | string
   goalId?: Prisma.StringFilter<"Reaction"> | string
-  emoji?: Prisma.StringFilter<"Reaction"> | string
   fingerprint?: Prisma.StringFilter<"Reaction"> | string
   createdAt?: Prisma.DateTimeFilter<"Reaction"> | Date | string
   goal?: Prisma.XOR<Prisma.GoalScalarRelationFilter, Prisma.GoalWhereInput>
@@ -188,7 +180,6 @@ export type ReactionWhereInput = {
 export type ReactionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   goalId?: Prisma.SortOrder
-  emoji?: Prisma.SortOrder
   fingerprint?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   goal?: Prisma.GoalOrderByWithRelationInput
@@ -201,7 +192,6 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ReactionWhereInput[]
   NOT?: Prisma.ReactionWhereInput | Prisma.ReactionWhereInput[]
   goalId?: Prisma.StringFilter<"Reaction"> | string
-  emoji?: Prisma.StringFilter<"Reaction"> | string
   fingerprint?: Prisma.StringFilter<"Reaction"> | string
   createdAt?: Prisma.DateTimeFilter<"Reaction"> | Date | string
   goal?: Prisma.XOR<Prisma.GoalScalarRelationFilter, Prisma.GoalWhereInput>
@@ -210,7 +200,6 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
 export type ReactionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   goalId?: Prisma.SortOrder
-  emoji?: Prisma.SortOrder
   fingerprint?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ReactionCountOrderByAggregateInput
@@ -224,14 +213,12 @@ export type ReactionScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ReactionScalarWhereWithAggregatesInput | Prisma.ReactionScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Reaction"> | string
   goalId?: Prisma.StringWithAggregatesFilter<"Reaction"> | string
-  emoji?: Prisma.StringWithAggregatesFilter<"Reaction"> | string
   fingerprint?: Prisma.StringWithAggregatesFilter<"Reaction"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Reaction"> | Date | string
 }
 
 export type ReactionCreateInput = {
   id?: string
-  emoji?: string
   fingerprint: string
   createdAt?: Date | string
   goal: Prisma.GoalCreateNestedOneWithoutReactionsInput
@@ -240,14 +227,12 @@ export type ReactionCreateInput = {
 export type ReactionUncheckedCreateInput = {
   id?: string
   goalId: string
-  emoji?: string
   fingerprint: string
   createdAt?: Date | string
 }
 
 export type ReactionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   goal?: Prisma.GoalUpdateOneRequiredWithoutReactionsNestedInput
@@ -256,7 +241,6 @@ export type ReactionUpdateInput = {
 export type ReactionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   goalId?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -264,14 +248,12 @@ export type ReactionUncheckedUpdateInput = {
 export type ReactionCreateManyInput = {
   id?: string
   goalId: string
-  emoji?: string
   fingerprint: string
   createdAt?: Date | string
 }
 
 export type ReactionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -279,7 +261,6 @@ export type ReactionUpdateManyMutationInput = {
 export type ReactionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   goalId?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -302,7 +283,6 @@ export type ReactionGoalIdFingerprintCompoundUniqueInput = {
 export type ReactionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   goalId?: Prisma.SortOrder
-  emoji?: Prisma.SortOrder
   fingerprint?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -310,7 +290,6 @@ export type ReactionCountOrderByAggregateInput = {
 export type ReactionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   goalId?: Prisma.SortOrder
-  emoji?: Prisma.SortOrder
   fingerprint?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -318,7 +297,6 @@ export type ReactionMaxOrderByAggregateInput = {
 export type ReactionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   goalId?: Prisma.SortOrder
-  emoji?: Prisma.SortOrder
   fingerprint?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -367,14 +345,12 @@ export type ReactionUncheckedUpdateManyWithoutGoalNestedInput = {
 
 export type ReactionCreateWithoutGoalInput = {
   id?: string
-  emoji?: string
   fingerprint: string
   createdAt?: Date | string
 }
 
 export type ReactionUncheckedCreateWithoutGoalInput = {
   id?: string
-  emoji?: string
   fingerprint: string
   createdAt?: Date | string
 }
@@ -411,35 +387,30 @@ export type ReactionScalarWhereInput = {
   NOT?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
   id?: Prisma.StringFilter<"Reaction"> | string
   goalId?: Prisma.StringFilter<"Reaction"> | string
-  emoji?: Prisma.StringFilter<"Reaction"> | string
   fingerprint?: Prisma.StringFilter<"Reaction"> | string
   createdAt?: Prisma.DateTimeFilter<"Reaction"> | Date | string
 }
 
 export type ReactionCreateManyGoalInput = {
   id?: string
-  emoji?: string
   fingerprint: string
   createdAt?: Date | string
 }
 
 export type ReactionUpdateWithoutGoalInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ReactionUncheckedUpdateWithoutGoalInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ReactionUncheckedUpdateManyWithoutGoalInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
   fingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -449,7 +420,6 @@ export type ReactionUncheckedUpdateManyWithoutGoalInput = {
 export type ReactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   goalId?: boolean
-  emoji?: boolean
   fingerprint?: boolean
   createdAt?: boolean
   goal?: boolean | Prisma.GoalDefaultArgs<ExtArgs>
@@ -458,7 +428,6 @@ export type ReactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type ReactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   goalId?: boolean
-  emoji?: boolean
   fingerprint?: boolean
   createdAt?: boolean
   goal?: boolean | Prisma.GoalDefaultArgs<ExtArgs>
@@ -467,7 +436,6 @@ export type ReactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type ReactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   goalId?: boolean
-  emoji?: boolean
   fingerprint?: boolean
   createdAt?: boolean
   goal?: boolean | Prisma.GoalDefaultArgs<ExtArgs>
@@ -476,12 +444,11 @@ export type ReactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type ReactionSelectScalar = {
   id?: boolean
   goalId?: boolean
-  emoji?: boolean
   fingerprint?: boolean
   createdAt?: boolean
 }
 
-export type ReactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "goalId" | "emoji" | "fingerprint" | "createdAt", ExtArgs["result"]["reaction"]>
+export type ReactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "goalId" | "fingerprint" | "createdAt", ExtArgs["result"]["reaction"]>
 export type ReactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   goal?: boolean | Prisma.GoalDefaultArgs<ExtArgs>
 }
@@ -500,7 +467,6 @@ export type $ReactionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     goalId: string
-    emoji: string
     fingerprint: string
     createdAt: Date
   }, ExtArgs["result"]["reaction"]>
@@ -929,7 +895,6 @@ export interface Prisma__ReactionClient<T, Null = never, ExtArgs extends runtime
 export interface ReactionFieldRefs {
   readonly id: Prisma.FieldRef<"Reaction", 'String'>
   readonly goalId: Prisma.FieldRef<"Reaction", 'String'>
-  readonly emoji: Prisma.FieldRef<"Reaction", 'String'>
   readonly fingerprint: Prisma.FieldRef<"Reaction", 'String'>
   readonly createdAt: Prisma.FieldRef<"Reaction", 'DateTime'>
 }

@@ -59,7 +59,6 @@ model Reaction {
   id          String   @id @default(cuid())
   goalId      String
   goal        Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
-  emoji       String   @default("🔥")
   fingerprint String
   createdAt   DateTime @default(now())
 

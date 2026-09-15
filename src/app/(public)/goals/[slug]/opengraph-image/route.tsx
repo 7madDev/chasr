@@ -10,7 +10,10 @@ export async function GET(
 ) {
   const { slug } = await params;
 
-  const goal = await prisma.goal.findUnique({ where: { slug } });
+  const goal = await prisma.goal.findUnique({ 
+    where: { slug },
+    include: { owner: true }
+  });
   if (!goal) {
     return new Response("Not found", { status: 404 });
   }
@@ -81,7 +84,7 @@ export async function GET(
             marginBottom: "40px",
           }}
         >
-          by {goal.founderName}
+          by {goal.owner.founderName}
         </p>
 
         {/* Progress bar */}

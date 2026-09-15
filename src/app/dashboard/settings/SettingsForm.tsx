@@ -95,8 +95,8 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
           className="w-20 h-20 rounded-full bg-neutral-200 dark:bg-zinc-800 overflow-hidden mb-4 border-2 border-white dark:border-zinc-950 shadow-lg cursor-pointer transition-transform hover:scale-105 hover:rotate-3 duration-300 relative group"
         >
           <img
-            src={avatarData || `https://api.dicebear.com/7.x/notionists/svg?seed=${founderName || 'founder'}`}
-            alt="avatar preview"
+            src={avatarData || "/avatar.svg"}
+            alt="Profile avatar preview"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

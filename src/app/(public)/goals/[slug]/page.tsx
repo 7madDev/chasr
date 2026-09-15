@@ -8,7 +8,8 @@ import { SupportWidget } from "@/components/SupportWidget";
 import { ShareButton } from "@/components/ShareButton";
 import { EmbedSnippet } from "@/components/EmbedSnippet";
 import { formatAmount } from "@/lib/format";
-import { Target, TrendingUp, Calendar, Zap } from "lucide-react";
+import { Target, TrendingUp, Calendar, Zap, Clock } from "lucide-react";
+import { ViewTracker } from "@/components/ViewTracker";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://open.announcify.app";
 
@@ -18,7 +19,10 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const goal = await prisma.goal.findUnique({ where: { slug } });
+  const goal = await prisma.goal.findUnique({ 
+    where: { slug },
+    include: { owner: true }
+  });
   if (!goal) return { title: "Goal not found" };
 
   const progress = Math.round(
@@ -32,7 +36,7 @@ export async function generateMetadata({
 
   return {
     title: `${goal.productName} — ${progress}% to ${formattedTarget}`,
-    description: `${goal.founderName} is publicly chasing ${formattedTarget} for ${goal.productName}. ${goal.why}`,
+    description: `${goal.owner.founderName} is publicly chasing ${formattedTarget} for ${goal.productName}. ${goal.why}`,
     openGraph: {
       title: `${goal.productName} — ${progress}% to ${formattedTarget}`,
       description: goal.why,
@@ -84,15 +88,12 @@ export default async function GoalPage({
 
   if (!goal) notFound();
 
-  await prisma.goal.update({
-    where: { slug },
-    data: { views: { increment: 1 } },
-  });
 
   const user = await getSession();
   const isOwner = user?.id === goal.ownerId;
   const isHit = goal.status === "HIT";
   const isArchived = goal.status === "ARCHIVED";
+  const isPastDeadline = new Date() > new Date(goal.deadline) && !isHit;
   const daysLeft = Math.ceil(
     (new Date(goal.deadline).getTime() - Date.now()) / 86400000
   );
@@ -110,6 +111,20 @@ export default async function GoalPage({
     hasReacted = !!existingReaction;
   }
 
+  const reactionUserIds = goal.reactions.map(r => r.fingerprint);
+  const reactingUsers = await prisma.user.findMany({
+    where: { id: { in: reactionUserIds } },
+    select: { id: true, avatarUrl: true }
+  });
+
+  const initialSupporters = goal.reactions.map(r => {
+    const reactingUser = reactingUsers.find(u => u.id === r.fingerprint);
+    return {
+      id: r.fingerprint,
+      avatarUrl: reactingUser?.avatarUrl || "/avatar.svg"
+    };
+  });
+
   const daysElapsed = Math.max(1, (Date.now() - new Date(goal.createdAt).getTime()) / 86400000);
   const dailyPace = Math.round((goal.currentAmount - goal.startAmount) / daysElapsed);
 
@@ -121,7 +136,7 @@ export default async function GoalPage({
 
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-neutral-900 dark:text-zinc-100 font-sans selection:bg-[#C13D19] selection:text-white pb-32 overflow-hidden transition-colors duration-300">
-
+      <ViewTracker slug={slug} />
       {isHit && <Confetti />}
 
       <div className={`max-w-2xl mx-auto px-4 pt-16 flex flex-col items-center text-center ${isArchived ? "opacity-70 grayscale transition-all" : ""}`}>
@@ -129,7 +144,7 @@ export default async function GoalPage({
         {/* Avatar & Header */}
         <div className="flex flex-col items-center mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both">
           <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-zinc-900 overflow-hidden mb-3 border border-neutral-200 dark:border-zinc-800 shadow-sm transition-transform hover:scale-105 hover:shadow-md">
-            <img src={goal.owner.avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${goal.owner.founderName}`} alt={goal.owner.founderName} className="w-full h-full object-cover" />
+            <img src={goal.owner.avatarUrl || "/avatar.svg"} alt={goal.owner.founderName} className="w-full h-full object-cover" />
           </div>
 
           <div className="flex flex-col items-center gap-1">
@@ -146,14 +161,22 @@ export default async function GoalPage({
           </div>
         </div>
 
-        <div className="mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-100">
-          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border ${isHit
-            ? "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20"
-            : "bg-[#FFF5F2] dark:bg-[#C13D19]/10 text-[#C13D19] dark:text-[#E85D38] border-[#FADCD5] dark:border-[#C13D19]/20"
-            }`}>
-            <Target className="w-3 h-3" />
-            {goal.status}
-          </span>
+        <div className="mb-6 flex flex-wrap justify-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-100">
+          {!isPastDeadline && (
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border ${isHit
+              ? "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20"
+              : "bg-[#FFF5F2] dark:bg-[#C13D19]/10 text-[#C13D19] dark:text-[#E85D38] border-[#FADCD5] dark:border-[#C13D19]/20"
+              }`}>
+              <Target className="w-3 h-3" />
+              {goal.status}
+            </span>
+          )}
+          {isPastDeadline && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20 animate-pulse">
+              <Clock className="w-3 h-3" />
+              deadline passed
+            </span>
+          )}
         </div>
 
         <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-neutral-900 dark:text-zinc-50 leading-[1.15] mb-8 max-w-xl text-balance animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-150">
@@ -175,12 +198,12 @@ export default async function GoalPage({
           </EmbedSnippet>
         </div>
 
-        <div className="w-full max-w-lg mb-16 p-6 sm:p-8 rounded-3xl border border-neutral-100 dark:border-zinc-800 bg-neutral-50 dark:bg-zinc-900 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-300">
+        <div className="w-full max-w-xl mb-16 p-6 sm:p-8 rounded-3xl border border-neutral-100 dark:border-zinc-800 bg-neutral-50 dark:bg-zinc-900 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both delay-300">
           <div className="flex items-baseline justify-center gap-2 mb-6">
-            <div className="text-4xl sm:text-5xl font-black font-mono tabular-nums tracking-tighter text-neutral-900 dark:text-white">
+            <div className="text-2xl sm:text-3xl font-black font-mono tabular-nums tracking-tighter text-neutral-900 dark:text-white">
               {formatAmount(goal.currentAmount, goal.currency)}
             </div>
-            <div className="text-lg sm:text-xl font-bold font-mono text-neutral-400 dark:text-zinc-600">
+            <div className="text-md sm:text-xl font-bold font-mono text-neutral-400 dark:text-zinc-600">
               / {formatAmount(goal.targetAmount, goal.currency)}
             </div>
           </div>
@@ -199,9 +222,11 @@ export default async function GoalPage({
 
           <div className="grid grid-cols-2 gap-6 px-2 divide-x divide-neutral-200 dark:divide-zinc-800/50">
             <div className="flex flex-col items-center">
-              <span className="text-xl font-black font-mono text-neutral-900 dark:text-white">{daysLeft}</span>
-              <span className="flex items-center gap-1 text-[9px] font-bold tracking-[0.1em] uppercase text-neutral-500 dark:text-zinc-400 mt-1.5">
-                <Calendar className="w-3 h-3" /> days left
+              <span className={`text-xl font-black font-mono ${isPastDeadline ? 'text-red-500' : 'text-neutral-900 dark:text-white'}`}>
+                {isPastDeadline ? '0' : daysLeft}
+              </span>
+              <span className={`flex items-center gap-1 text-[9px] font-bold tracking-[0.1em] uppercase mt-1.5 ${isPastDeadline ? 'text-red-500/70 animate-pulse' : 'text-neutral-500 dark:text-zinc-400'}`}>
+                <Calendar className="w-3 h-3" /> {isPastDeadline ? 'passed' : 'days left'}
               </span>
               <span className="text-[9px] text-neutral-400 dark:text-zinc-500 uppercase mt-0.5 tracking-widest">{formatDate(goal.deadline)}</span>
             </div>
@@ -216,13 +241,13 @@ export default async function GoalPage({
           </div>
         </div>
 
-        {/* Reaction Section */}
-        <SupportWidget 
-          slug={slug} 
-          initialCount={goal._count.reactions} 
-          initialAvatars={goal.reactions.map(r => r.fingerprint)} 
+        <SupportWidget
+          slug={slug}
+          initialCount={goal._count.reactions}
+          initialSupporters={initialSupporters}
           initialReacted={hasReacted}
           isLoggedIn={!!user?.id}
+          isPastDeadline={isPastDeadline}
         />
 
         {/* Timeline (Momentum Log) */}

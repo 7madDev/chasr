@@ -4,9 +4,9 @@ import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import type { Goal } from "@/generated/prisma/client";
-import { Plus, Target, Activity, CheckCircle2, Eye, ExternalLink } from "lucide-react";
+import { Plus, Target, Activity, CheckCircle2, Eye, ExternalLink, Users } from "lucide-react";
 
-type GoalWithCount = Goal & { _count: { updates: number } };
+type GoalWithCount = Goal & { _count: { updates: number, reactions: number } };
 
 export const metadata: Metadata = {
   title: "dashboard | chasr",
@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   const goals: GoalWithCount[] = await prisma.goal.findMany({
     where: { ownerId: user.id },
     orderBy: { createdAt: "desc" },
-    include: { _count: { select: { updates: true } } },
+    include: { _count: { select: { updates: true, reactions: true } } },
   });
 
   const activeGoals = goals.filter((g) => g.status === "ACTIVE");
@@ -127,12 +127,16 @@ export default async function DashboardPage() {
                     <h3 className="font-bold text-xl text-neutral-900 dark:text-zinc-50 tracking-tight mb-1">
                       {goal.productName}
                     </h3>
-                    <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-zinc-400">
+                    <div className="flex items-center flex-wrap gap-2 text-xs font-medium text-neutral-500 dark:text-zinc-400 mt-1">
                       <span>
                         {isHit ? "target hit" : isPastDeadline ? "deadline passed" : `${daysLeft} days left`}
                       </span>
                       <span className="opacity-40">•</span>
                       <span>{goal._count.updates} update{goal._count.updates !== 1 ? "s" : ""}</span>
+                      <span className="opacity-40">•</span>
+                      <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {goal.views || 0}</span>
+                      <span className="opacity-40">•</span>
+                      <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {goal._count.reactions || 0}</span>
                     </div>
                   </div>
 
@@ -163,7 +167,7 @@ export default async function DashboardPage() {
 
                 {/* unified footer actions */}
                 <div className="flex items-center gap-3 pt-5 border-t border-neutral-100 dark:border-zinc-800/60 mt-auto">
-                  {goal.status === "ACTIVE" && (
+                  {goal.status === "ACTIVE" && !isPastDeadline && (
                     <Link
                       href={`/dashboard/goals/${goal.slug}/edit`}
                       className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-neutral-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"

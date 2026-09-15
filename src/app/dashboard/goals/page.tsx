@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import type { Goal } from "@/generated/prisma/client";
 import { DeleteGoalButton } from "./DeleteGoalButton";
-import { Plus, Settings, ExternalLink, PenSquare } from "lucide-react";
+import { Plus, Settings, ExternalLink, PenSquare, Eye, Users } from "lucide-react";
 
 type GoalWithCount = Goal & { _count: { updates: number; reactions: number } };
 
@@ -79,12 +79,16 @@ export default async function MyGoalsPage() {
                     <h3 className="font-bold text-xl text-neutral-900 dark:text-zinc-50 tracking-tight mb-1">
                       {goal.productName}
                     </h3>
-                    <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-zinc-400">
+                    <div className="flex items-center flex-wrap gap-2 text-xs font-medium text-neutral-500 dark:text-zinc-400 mt-1">
                       <span>
                         {isHit ? "target hit" : isPastDeadline ? "deadline passed" : `${daysLeft} days left`}
                       </span>
                       <span className="opacity-40">•</span>
                       <span>{goal._count.updates} update{goal._count.updates !== 1 ? "s" : ""}</span>
+                      <span className="opacity-40">•</span>
+                      <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {goal.views || 0}</span>
+                      <span className="opacity-40">•</span>
+                      <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {goal._count.reactions || 0}</span>
                     </div>
                   </div>
 
@@ -115,7 +119,7 @@ export default async function MyGoalsPage() {
 
                 {/* actions: hierarchy established by keeping secondary actions subtle */}
                 <div className="flex items-center gap-4 pt-5 border-t border-neutral-100 dark:border-zinc-800/60 mt-auto">
-                  {goal.status === "ACTIVE" && (
+                  {goal.status === "ACTIVE" && !isPastDeadline && (
                     <Link
                       href={`/dashboard/goals/${goal.slug}/edit`}
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-neutral-100 dark:bg-zinc-800 text-neutral-900 dark:text-zinc-100 text-sm font-medium hover:bg-neutral-200 dark:hover:bg-zinc-700 transition-colors"

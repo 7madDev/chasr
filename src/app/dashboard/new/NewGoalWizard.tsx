@@ -86,7 +86,6 @@ export function NewGoalWizard({ defaultFounderName = "" }: { defaultFounderName?
       await createGoal({
         productName: form.productName.trim(),
         productUrl: form.productUrl.trim(),
-        founderName: defaultFounderName,
         why: form.why.trim(),
         startAmount: parseFloat(form.startAmount),
         targetAmount: parseFloat(form.targetAmount),
@@ -323,7 +322,6 @@ export function NewGoalWizard({ defaultFounderName = "" }: { defaultFounderName?
                         selected={form.deadline ? new Date(form.deadline + "T12:00:00") : undefined}
                         onSelect={(date) => { if (date) update("deadline", date.toISOString().split("T")[0]); }}
                         disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>

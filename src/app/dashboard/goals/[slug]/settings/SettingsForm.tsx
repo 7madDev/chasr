@@ -33,8 +33,6 @@ export function SettingsForm({ slug, initialData }: SettingsFormProps) {
     }
   }
 
-  const defaultDate = new Date(initialData.deadline).toISOString().split('T')[0];
-
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-6">
 
@@ -81,21 +79,7 @@ export function SettingsForm({ slug, initialData }: SettingsFormProps) {
           </div>
         </div>
 
-        <div className="space-y-3 group">
-          <label htmlFor="deadline" className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 group-focus-within:text-[#C13D19] transition-colors flex items-center gap-2">
-            <Calendar className="w-3.5 h-3.5" /> deadline date
-          </label>
-          <input
-            id="deadline"
-            name="deadline"
-            type="date"
-            required
-            defaultValue={defaultDate}
-            className="w-full sm:w-1/2 h-12 px-4 rounded-xl border border-neutral-200 dark:border-zinc-800 bg-neutral-50 dark:bg-zinc-900/50 focus:outline-none focus:ring-2 focus:ring-[#C13D19]/20 focus:border-[#C13D19] transition-all text-neutral-900 dark:text-zinc-50 font-semibold uppercase text-sm"
-          />
-        </div>
 
-        <div className="h-px w-full bg-neutral-100 dark:bg-zinc-800/50" />
 
         <div className="space-y-3 group relative">
           <div className="flex items-center justify-between">

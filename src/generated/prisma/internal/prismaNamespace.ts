@@ -801,7 +801,6 @@ export type GoalUpdateScalarFieldEnum = (typeof GoalUpdateScalarFieldEnum)[keyof
 export const ReactionScalarFieldEnum = {
   id: 'id',
   goalId: 'goalId',
-  emoji: 'emoji',
   fingerprint: 'fingerprint',
   createdAt: 'createdAt'
 } as const

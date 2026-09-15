@@ -1,15 +1,16 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { LogOut, Plus, Trophy, LayoutDashboard, Target, Settings, ChevronRight } from "lucide-react";
+import { LogOut, Plus, Trophy, LayoutDashboard, Target, Settings, ChevronRight, Menu, X } from "lucide-react";
 import { signOutAction } from "@/app/actions/auth";
 
 const NAV_ITEMS = [
   {
     label: "Leaderboard",
-    href: "/",
+    href: "/leaderboard",
     icon: Trophy,
   },
   {
@@ -33,6 +34,12 @@ const NAV_ITEMS = [
 export function DashboardSidebar({ userName, avatarUrl }: { userName: string, avatarUrl?: string | null }) {
   const pathname = usePathname();
 
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
   function isActive(href: string, exact?: boolean) {
     if (exact) return pathname === href;
     if (href === "/") return pathname === "/";
@@ -40,7 +47,31 @@ export function DashboardSidebar({ userName, avatarUrl }: { userName: string, av
   }
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-72 bg-white dark:bg-[#09090b] border-r border-neutral-200 dark:border-zinc-800/50 flex flex-col z-30 hidden md:flex">
+    <>
+      {/* Mobile Top Bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 dark:bg-[#09090b]/80 backdrop-blur-md border-b border-neutral-200 dark:border-zinc-800/50 z-40 flex items-center justify-between px-4 sm:px-6">
+        <Link href="/" className="flex flex-col gap-1 hover:opacity-80 transition-opacity">
+          <img src="/chasr.png" alt="Chasr Logo" className="h-6 w-auto object-contain self-start ml-1" />
+        </Link>
+        <button onClick={() => setIsOpen(true)} className="p-2 -mr-2 text-neutral-600 dark:text-zinc-400">
+          <Menu className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`fixed left-0 top-0 bottom-0 w-72 bg-white dark:bg-[#09090b] border-r border-neutral-200 dark:border-zinc-800/50 flex flex-col z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        {/* Mobile Close Button */}
+        <button onClick={() => setIsOpen(false)} className="md:hidden absolute top-5 right-5 p-2 text-neutral-500">
+          <X className="w-5 h-5" />
+        </button>
 
       {/* Brand Header */}
       <div className="p-6 pb-8">
@@ -84,8 +115,8 @@ export function DashboardSidebar({ userName, avatarUrl }: { userName: string, av
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={`group flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${active
-                  ? "bg-neutral-100 dark:bg-zinc-900 text-neutral-900 dark:text-white"
-                  : "text-neutral-500 dark:text-zinc-400 hover:bg-neutral-50 dark:hover:bg-zinc-900/50 hover:text-neutral-900 dark:hover:text-zinc-200"
+                ? "bg-neutral-100 dark:bg-zinc-900 text-neutral-900 dark:text-white"
+                : "text-neutral-500 dark:text-zinc-400 hover:bg-neutral-50 dark:hover:bg-zinc-900/50 hover:text-neutral-900 dark:hover:text-zinc-200"
                 }`}
             >
               <div className="flex items-center gap-3">
@@ -106,7 +137,7 @@ export function DashboardSidebar({ userName, avatarUrl }: { userName: string, av
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-9 h-9 rounded-full bg-neutral-200 dark:bg-zinc-800 overflow-hidden flex-shrink-0 border border-white dark:border-zinc-700">
               <img
-                src={avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${userName}`}
+                src={avatarUrl || "/avatar.svg"}
                 alt={userName}
                 className="w-full h-full object-cover"
               />
@@ -136,5 +167,6 @@ export function DashboardSidebar({ userName, avatarUrl }: { userName: string, av
         </div>
       </div>
     </aside>
+    </>
   );
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Trophy, LayoutDashboard, Plus } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -13,19 +14,31 @@ export async function Navbar() {
         </Link>
 
         <nav className="flex items-center gap-3">
+          <Link
+            href="/leaderboard"
+            className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-zinc-400 hover:text-neutral-900 dark:hover:text-zinc-100 transition-colors sm:mr-2 flex items-center gap-1"
+            title="Leaderboard"
+          >
+            <Trophy className="w-4 h-4 sm:hidden" />
+            <span className="hidden sm:inline">leaderboard</span>
+          </Link>
           {user ? (
             <>
               <Link
                 href="/dashboard"
-                className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-zinc-400 hover:text-neutral-900 dark:hover:text-zinc-100 transition-colors"
+                className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-zinc-400 hover:text-neutral-900 dark:hover:text-zinc-100 transition-colors flex items-center gap-1"
+                title="Dashboard"
               >
-                dashboard
+                <LayoutDashboard className="w-4 h-4 sm:hidden" />
+                <span className="hidden sm:inline">dashboard</span>
               </Link>
               <Link
                 href="/dashboard/new"
-                className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#C13D19] text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#a63214] transition-colors"
+                className="inline-flex items-center justify-center px-3 sm:px-4 py-2 rounded-lg bg-[#C13D19] text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#a63214] transition-colors"
+                title="New Goal"
               >
-                new goal
+                <Plus className="w-4 h-4 sm:hidden" />
+                <span className="hidden sm:inline">new goal</span>
               </Link>
             </>
           ) : (
