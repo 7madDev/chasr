@@ -78,15 +78,12 @@ export function SignInForm() {
       <div className="w-full max-w-[420px] animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out">
 
         {/* brand header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#C13D19] shadow-lg shadow-[#C13D19]/20 mb-6">
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <h1 className="text-4xl font-black tracking-tighter text-neutral-900 dark:text-white mb-2">
-            chasr.
-          </h1>
+        <div className="flex flex-col items-center justify-center text-center mb-10">
+          <img
+            src="/chasr.png"
+            alt="Chasr Logo"
+            className="h-10 w-auto object-contain mb-3"
+          />
           <p className="text-[10px] font-mono uppercase tracking-[0.2em] font-bold text-neutral-400 dark:text-zinc-500">
             stay accountable
           </p>
