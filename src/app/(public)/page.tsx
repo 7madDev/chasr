@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatAmount } from "@/lib/format";
 import type { Prisma } from "@/generated/prisma/client";
@@ -26,9 +27,13 @@ const TAB_CONFIG: Record<SortTab, { label: string; where: Prisma.GoalWhereInput;
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; code?: string }>;
 }) {
   const resolvedParams = await searchParams;
+
+  if (resolvedParams.code) {
+    redirect(`/auth/callback?code=${resolvedParams.code}`);
+  }
   const tab = (resolvedParams.tab as SortTab) || "closest";
   const config = TAB_CONFIG[tab] || TAB_CONFIG.closest;
 
