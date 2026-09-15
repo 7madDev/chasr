@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NewGoalPage() {
-  const user = await requireAuth();
+  await requireAuth();
 
   return <NewGoalWizard />;
 }

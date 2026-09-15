@@ -58,7 +58,7 @@ export async function POST(
       const count = await prisma.reaction.count({ where: { goalId: goal.id } });
       return NextResponse.json({ count, alreadyReacted: true, supporter });
     }
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to react" }, { status: 500 });
   }
 }

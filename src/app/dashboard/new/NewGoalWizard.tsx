@@ -33,7 +33,7 @@ const STEPS = [
   { num: 3, label: "commit" },
 ];
 
-export function NewGoalWizard({ defaultFounderName = "" }: { defaultFounderName?: string }) {
+export function NewGoalWizard() {
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);

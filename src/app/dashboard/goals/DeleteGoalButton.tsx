@@ -11,7 +11,7 @@ export function DeleteGoalButton({ slug }: { slug: string }) {
     setIsDeleting(true);
     try {
       await deleteGoal(slug);
-    } catch (e) {
+    } catch {
       alert("Failed to delete goal.");
       setIsDeleting(false);
       setShowConfirm(false);

@@ -65,8 +65,8 @@ export function OnboardingForm({ initialData }: OnboardingFormProps) {
     try {
       const formData = new FormData(e.currentTarget);
       await completeOnboarding(formData);
-    } catch (err: any) {
-      setError(err.message || "failed to save profile.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "failed to save profile.");
       setLoading(false);
     }
   }

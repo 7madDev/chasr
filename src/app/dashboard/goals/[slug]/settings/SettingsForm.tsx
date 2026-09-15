@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { updateGoalSettings } from "./actions";
-import { Save, Link as LinkIcon, Calendar, Target, AlertCircle, Settings2 } from "lucide-react";
+import { Save, Link as LinkIcon, Target, AlertCircle, Settings2 } from "lucide-react";
 
 interface SettingsFormProps {
   slug: string;
@@ -27,8 +27,8 @@ export function SettingsForm({ slug, initialData }: SettingsFormProps) {
     try {
       const formData = new FormData(e.currentTarget);
       await updateGoalSettings(slug, formData);
-    } catch (err: any) {
-      setError(err.message || "failed to update goal settings.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "failed to update goal settings.");
       setLoading(false);
     }
   }

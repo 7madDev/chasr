@@ -69,8 +69,8 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
       await updateGlobalSettings(formData);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
-    } catch (err: any) {
-      setError(err.message || "failed to update settings.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "failed to update profile.");
     } finally {
       setLoading(false);
     }

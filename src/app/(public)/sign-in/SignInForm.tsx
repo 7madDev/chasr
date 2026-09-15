@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Mail, AlertCircle, ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
-import Link from "next/link";
+import { Mail, AlertCircle, Sparkles } from "lucide-react";
 
 export function SignInForm() {
   const [email, setEmail] = useState("");
