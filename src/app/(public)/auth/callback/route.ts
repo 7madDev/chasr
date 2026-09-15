@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
   const code = searchParams.get("code");
   const redirectTo = searchParams.get("redirect") || "/dashboard";
 
@@ -27,13 +28,13 @@ export async function GET(request: Request) {
           }
         });
         
-        return NextResponse.redirect(new URL("/dashboard/onboarding", origin));
+        return NextResponse.redirect(new URL("/dashboard/onboarding", appUrl));
       }
 
-      return NextResponse.redirect(new URL(redirectTo, origin));
+      return NextResponse.redirect(new URL(redirectTo, appUrl));
     }
   }
 
   // If there's no code or exchange failed, redirect to sign-in
-  return NextResponse.redirect(new URL("/sign-in", origin));
+  return NextResponse.redirect(new URL("/sign-in", appUrl));
 }
