@@ -37,12 +37,14 @@ export default async function HomePage({
   const tab = (resolvedParams.tab as SortTab) || "closest";
   const config = TAB_CONFIG[tab] || TAB_CONFIG.closest;
 
-  // We only fetch 6 goals for the grid
-  const rawGoals = await prisma.goal.findMany({
-    where: config.where,
-    orderBy: config.orderBy,
-    include: { owner: true, _count: { select: { reactions: true } } },
-  });
+  const [rawGoals, userCount] = await Promise.all([
+    prisma.goal.findMany({
+      where: config.where,
+      orderBy: config.orderBy,
+      include: { owner: true, _count: { select: { reactions: true } } },
+    }),
+    prisma.user.count(),
+  ]);
 
   const goalsWithProgress = rawGoals.map((goal) => {
     const progress = Math.min(
@@ -73,7 +75,7 @@ export default async function HomePage({
         <section className="text-center max-w-4xl mx-auto mb-32 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-100 dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 text-xs font-bold uppercase tracking-widest text-neutral-600 dark:text-zinc-400 mb-8">
             <Users className="w-3.5 h-3.5 text-[#C13D19]" />
-            Join 2,400+ Unstoppable Founders
+            Join {userCount.toLocaleString()} Unstoppable Founder{userCount === 1 ? "" : "s"}
           </div>
 
           <h1 className="text-5xl sm:text-7xl md:text-8xl font-black tracking-tighter mb-6 text-neutral-900 dark:text-white leading-[1.1]">
@@ -117,8 +119,8 @@ export default async function HomePage({
                     key={t}
                     href={`/?tab=${t}`}
                     className={`px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${isActive
-                        ? "bg-white dark:bg-zinc-800 text-[#C13D19] shadow-sm"
-                        : "text-neutral-500 hover:text-neutral-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                      ? "bg-white dark:bg-zinc-800 text-[#C13D19] shadow-sm"
+                      : "text-neutral-500 hover:text-neutral-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                       }`}
                   >
                     {TAB_CONFIG[t].label}
